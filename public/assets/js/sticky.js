@@ -1,5 +1,10 @@
 $(document).ready(function(){
 
+  // Pages without a sticky header (login, register...) have nothing to pin.
+  if (!$(".sticky").length) {
+    return;
+  }
+
   var stickyElement = $(".sticky"),
       stickyClass = "sticky-pin",
       stickyPos = stickyElement.offset().top, //Distance from the top of the window.

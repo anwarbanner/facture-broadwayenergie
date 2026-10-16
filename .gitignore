@@ -13,3 +13,10 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+
+# Local-only: database dumps / .env backups (real client data), dev tooling caches
+/storage/backups
+/.claude
+/graphify-out
+/.phpunit.cache
+phpunit.xml.bak

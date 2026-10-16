@@ -1,6 +1,6 @@
 @extends('layouts.master')
 @section('title')
-    ارشيف الفواتير
+    Archive des factures
 @stop
 @section('css')
     <!-- Internal Data table css -->
@@ -18,8 +18,8 @@
     <div class="breadcrumb-header justify-content-between">
         <div class="my-auto">
             <div class="d-flex">
-                <h4 class="content-title mb-0 my-auto">الفواتير</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/ أرشيف
-                    الفواتير</span>
+                <h4 class="content-title mb-0 my-auto">Factures</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/ Archive
+                    Factures</span>
             </div>
         </div>
 
@@ -32,7 +32,7 @@
         <script>
             window.onload = function() {
                 notif({
-                    msg: "تم أرشفة الفاتورة بنجاح",
+                    msg: "Facture archivee avec succes",
                     type: "success"
                 })
             }
@@ -44,7 +44,7 @@
         <script>
             window.onload = function() {
                 notif({
-                    msg: "تم حذف الفاتورة بنجاح",
+                    msg: "Facture supprimee avec succes",
                     type: "success"
                 })
             }
@@ -68,23 +68,23 @@
                             <thead>
                                 <tr>
                                     <th class="border-bottom-0">#</th>
-                                    <th class="border-bottom-0">رقم الفاتورة</th>
-                                    <th class="border-bottom-0">تاريخ القاتورة</th>
-                                    <th class="border-bottom-0">تاريخ الاستحقاق</th>
-                                    <th class="border-bottom-0">المنتج</th>
-                                    <th class="border-bottom-0">القسم</th>
-                                    <th class="border-bottom-0">الخصم</th>
-                                    <th class="border-bottom-0">نسبة الضريبة</th>
-                                    <th class="border-bottom-0">قيمة الضريبة</th>
-                                    <th class="border-bottom-0">الاجمالي</th>
-                                    <th class="border-bottom-0">الحالة</th>
-                                    <th class="border-bottom-0">ملاحظات</th>
-                                    <th class="border-bottom-0">العمليات</th>
+                                    <th class="border-bottom-0">Numero de facture</th>
+                                    <th class="border-bottom-0">Date de facture</th>
+                                    <th class="border-bottom-0">Date d echeance</th>
+                                    <th class="border-bottom-0">Produit</th>
+                                    <th class="border-bottom-0">Section</th>
+                                    <th class="border-bottom-0">Remise</th>
+                                    <th class="border-bottom-0">Taux de TVA</th>
+                                    <th class="border-bottom-0">Valeur de TVA</th>
+                                    <th class="border-bottom-0">Total</th>
+                                    <th class="border-bottom-0">Etat</th>
+                                    <th class="border-bottom-0">Notes</th>
+                                    <th class="border-bottom-0">Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @php
-                                $i = 0;
+                                $i = $invoices->firstItem() ? $invoices->firstItem() - 1 : 0;
                                 @endphp
                                 @foreach ($invoices as $invoice)
                                     @php
@@ -97,7 +97,7 @@
                                         <td>{{ $invoice->due_date }}</td>
                                         <td>{{ $invoice->product }}</td>
                                         <td><a
-                                                href="{{ url('InvoicesDetails') }}/{{ $invoice->id }}">{{ $invoice->section->section_name }}</a>
+                                                href="{{ url('InvoicesDetails') }}/{{ $invoice->id }}">-</a>
                                         </td>
                                         <td>{{ $invoice->Discount }}</td>
                                         <td>{{ $invoice->Rate_VAT }}</td>
@@ -105,32 +105,18 @@
                                         <td>{{ $invoice->Total }}</td>
                                         <td>
                                             @if ($invoice->Value_Status == 1)
-                                                <span class="text-success">{{ $invoice->status }}</span>
+                                                <span class="text-success">{{ \App\Support\Format::legacyStatus($invoice->Value_Status) }}</span>
                                             @elseif($invoice->Value_Status == 2)
-                                                <span class="text-danger">{{ $invoice->status }}</span>
+                                                <span class="text-danger">{{ \App\Support\Format::legacyStatus($invoice->Value_Status) }}</span>
                                             @else
-                                                <span class="text-warning">{{ $invoice->status }}</span>
+                                                <span class="text-warning">{{ \App\Support\Format::legacyStatus($invoice->Value_Status) }}</span>
                                             @endif
 
                                         </td>
 
                                         <td>{{ $invoice->note }}</td>
                                         <td>
-                                            <div class="dropdown">
-                                                <button aria-expanded="false" aria-haspopup="true"
-                                                    class="btn ripple btn-primary btn-sm" data-toggle="dropdown"
-                                                    type="button">العمليات<i class="fas fa-caret-down ml-1"></i></button>
-                                                <div class="dropdown-menu tx-13">
-                                                    <a class="dropdown-item" href="#" data-invoice_id="{{ $invoice->id }}"
-                                                        data-toggle="modal" data-target="#Transfer_invoice"><i
-                                                            class="text-warning fas fa-exchange-alt"></i>&nbsp;&nbsp;نقل الي
-                                                        الفواتير</a>
-                                                    <a class="dropdown-item" href="#" data-invoice_id="{{ $invoice->id }}"
-                                                        data-toggle="modal" data-target="#delete_invoice"><i
-                                                            class="text-danger fas fa-trash-alt"></i>&nbsp;&nbsp;حذف
-                                                        الفاتورة</a>
-                                                </div>
-                                            </div>
+                                            <span class="text-muted">Lecture seule</span>
 
                                         </td>
                                     </tr>
@@ -139,19 +125,22 @@
                             </tbody>
                         </table>
                     </div>
+                    <div class="mt-3 d-flex justify-content-end">
+                        {{ $invoices->links() }}
+                    </div>
                 </div>
             </div>
         </div>
         <!--/div-->
     </div>
 
-    <!-- حذف الفاتورة -->
+    <!-- Supprimer la facture -->
     <div class="modal fade" id="delete_invoice" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">حذف الفاتورة</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Supprimer la facture</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -160,26 +149,26 @@
                         {{ csrf_field() }}
                 </div>
                 <div class="modal-body">
-                    هل انت متاكد من عملية الحذف ؟
+                    Etes-vous sur de vouloir supprimer ?
                     <input type="hidden" name="invoice_id" id="invoice_id" value="">
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
-                    <button type="submit" class="btn btn-danger">تاكيد</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-danger">Confirmer</button>
                 </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!--الغاء الارشفة-->
+                    <!-- Annuler l archivage -->
     <div class="modal fade" id="Transfer_invoice" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">الغاء ارشفة الفاتورة</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Annuler Archiver la facture</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -188,13 +177,13 @@
                         {{ csrf_field() }}
                 </div>
                 <div class="modal-body">
-                    هل انت متاكد من عملية الغاء الارشفة ؟
+                    Etes-vous sur de vouloir annuler l archivage ?
                     <input type="hidden" name="invoice_id" id="invoice_id" value="">
 
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">الغاء</button>
-                    <button type="submit" class="btn btn-success">تاكيد</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success">Confirmer</button>
                 </div>
                 </form>
             </div>
@@ -253,3 +242,8 @@
     </script>
 
 @endsection
+
+
+
+
+

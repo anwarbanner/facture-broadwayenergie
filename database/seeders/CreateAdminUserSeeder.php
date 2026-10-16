@@ -12,37 +12,41 @@ class CreateAdminUserSeeder extends Seeder
 * @return void
 */
 public function run(){
-    
-    $user = User::create([
-    'name' => 'Abdallah Mahmoud',
-    'email' => 'superadmin2@abdocoder.com',
-    'password' => bcrypt('password'),
-    'role_name' => ['super-admin'],
-    'status' => 'active',
+    $superAdminRole = Role::firstOrCreate(['name' => 'Admin'], ['guard_name' => 'web']);
+    $writerRole = Role::firstOrCreate(['name' => 'Technicien'], ['guard_name' => 'web']);
+
+    $superAdmin = User::firstOrCreate(
+        // Generic first accounts: change the e-mails and passwords right after installation.
+        ['email' => 'admin@example.com'],
+        [
+            'name' => 'Administrateur',
+            'password' => bcrypt('password'),
+            'role_name' => ['Admin'],
+            'status' => 'active',
+        ]
+    );
+
+    $superAdminRole->syncPermissions(Permission::all());
+    $superAdmin->syncRoles([$superAdminRole->name]);
+    $superAdmin->update(['role_name' => [$superAdminRole->name], 'status' => 'active']);
+
+    $writer = User::firstOrCreate(
+        ['email' => 'technicien@example.com'],
+        [
+            'name' => 'Technicien',
+            'password' => bcrypt('password'),
+            'role_name' => ['Technicien'],
+            'status' => 'active',
+        ]
+    );
+
+    $writerRole->syncPermissions([
+        'invoices_list',
+        'paid_invoices_list',
+        'unpaid_invoices_list',
+        'partial_paid_invoices_list',
     ]);
-    
-    $role = Role::create(['name' => 'super-admin']);
-    $permissions = Permission::pluck('id','id')->all();
-    
-    $role->givePermissionTo(Permission::all());
-        
-    $user->assignRole([$role->id]);
-    
-    
-     $user2 = User::create([
-    'name' => 'xyz Mahmoud',
-    'email' => 'xyz@abdocoder.com',
-    'password' => bcrypt('password'),
-    'role_name' => ['writer'],
-    'status' => 'active',
-    ]);
-    
-    $role2 = Role::create(['name' => 'writer']);
-    
-    $role2->givePermissionTo('paid_invoices_list');
-    
-    ///// $role = Role::create(['name' => 'moderator'])->givePermissionTo(['publish articles', 'unpublish articles']);
-    
-    $user2->assignRole([$role2->id]);
+    $writer->syncRoles([$writerRole->name]);
+    $writer->update(['role_name' => [$writerRole->name], 'status' => 'active']);
     }
 }

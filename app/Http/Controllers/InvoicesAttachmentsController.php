@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\invoices;
 use App\Models\invoices_attachments;
+use App\Support\InvoiceAttachmentStorage;
 use Illuminate\Http\Request;
 use Auth;
 
@@ -37,28 +39,24 @@ class InvoicesAttachmentsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-
-        'file_name' => 'mimes:pdf,jpeg,png,jpg',
-
+            'invoice_id' => 'required|integer|exists:invoices,id',
+            'file_name' => 'required|' . InvoiceAttachmentStorage::VALIDATION_RULE,
         ], [
-            'file_name.mimes' => 'صيغة المرفق يجب ان تكون   pdf, jpeg , png , jpg',
+            'file_name.mimes' => 'La piece jointe doit etre au format pdf, jpeg, png ou jpg.',
         ]);
-        
-        $image = $request->file('file_name');
-        $file_name = $image->getClientOriginalName();
+
+        // The folder comes from the invoice record, not from a hidden form field.
+        $invoice = invoices::findOrFail($request->invoice_id);
+        $file_name = InvoiceAttachmentStorage::store($request->file('file_name'), (string) $invoice->invoice_number);
 
         $attachments =  new invoices_attachments();
         $attachments->file_name = $file_name;
-        $attachments->invoice_number = $request->invoice_number;
-        $attachments->invoice_id = $request->invoice_id;
+        $attachments->invoice_number = $invoice->invoice_number;
+        $attachments->invoice_id = $invoice->id;
         $attachments->Created_by = Auth::user()->name;
         $attachments->save();
-           
-        // move pic
-        $imageName = $request->file_name->getClientOriginalName();
-        $request->file_name->move(public_path('Attachments/'. $request->invoice_number), $imageName);
-        
-        session()->flash('Add', 'تم اضافة المرفق بنجاح');
+
+        session()->flash('Add', 'Piece jointe ajoutee.');
         return back();
     }
 

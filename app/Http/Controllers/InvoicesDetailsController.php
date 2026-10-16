@@ -6,8 +6,8 @@ use App\Models\invoices;
 use App\Models\invoices_details;
 use App\Models\invoices_attachments;
 
+use App\Support\InvoiceAttachmentStorage;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
 class InvoicesDetailsController extends Controller
 {
     /**
@@ -34,14 +34,25 @@ class InvoicesDetailsController extends Controller
     }
     
     public function openInvoiceFile($invoice_number, $file_name) {
-        
-        $files = Storage::disk('public_attach')->getDriver()->getAdapter()->applyPathPrefix($invoice_number . '/' . $file_name );
-        return response()->file($files);
+        $path = $this->attachmentPath($invoice_number, $file_name);
+        return response()->file($path);
     }
     public function download($invoice_number, $file_name) {
-        
-        $files = Storage::disk('public_attach')->getDriver()->getAdapter()->applyPathPrefix($invoice_number . '/' . $file_name );
-        return response()->download($files);
+        $path = $this->attachmentPath($invoice_number, $file_name);
+        return response()->download($path);
+    }
+
+    // Only serve files that are registered in invoices_attachments, never a raw URL path.
+    private function attachmentPath(string $invoiceNumber, string $fileName): string
+    {
+        $attachment = invoices_attachments::where('invoice_number', $invoiceNumber)
+            ->where('file_name', $fileName)
+            ->firstOrFail();
+
+        $path = InvoiceAttachmentStorage::path($attachment);
+        abort_unless(is_file($path), 404);
+
+        return $path;
     }
     
     
@@ -110,10 +121,11 @@ class InvoicesDetailsController extends Controller
      */
     public function destroy(Request $request)
     {
-        $invoices = invoices_attachments::findOrFail($request->id_file);
-        $invoices->delete();
-        Storage::disk('public_attach')->delete($request->invoice_number.'/'.$request->file_name);
-        session()->flash('delete', 'تم حذف المرفق بنجاح');
+        // Path comes from the DB record, not from invoice_number/file_name in the request.
+        $attachment = invoices_attachments::findOrFail($request->id_file);
+        InvoiceAttachmentStorage::delete($attachment);
+        $attachment->delete();
+        session()->flash('delete', 'Piece jointe supprimee.');
         return back();
     }
 }

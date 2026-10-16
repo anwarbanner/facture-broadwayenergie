@@ -1,224 +1,218 @@
 @extends('layouts.master')
 
-@section('title', __('home.home_title'))
+@section('title', 'Tableau de bord')
 
-@section('css')
-    <!--  Owl-carousel css-->
-    <link href="{{ URL::asset('assets/plugins/owl-carousel/owl.carousel.css') }}" rel="stylesheet" />
-    <!-- Maps css -->
-    <link href="{{ URL::asset('assets/plugins/jqvmap/jqvmap.min.css') }}" rel="stylesheet">
-@endsection
-@section('page-header')
-    <!-- breadcrumb -->
-    <div class="breadcrumb-header justify-content-between">
-        <div class="left-content">
-            <div>
-                <h2 class="main-content-title tx-24 mg-b-1 mg-b-lg-1">{{ __('home.welcome') }}</h2>
-                <p class="mg-b-0">{{ __('home.app_title_home') }} </p>
-            </div>
-        </div>
-        <div class="main-dashboard-header-right">
-            <div>
-                <label class="tx-13">{{ __('home.customers_status') }}</label>
-                <div class="main-star">
-                    <i class="typcn typcn-star active"></i> <i class="typcn typcn-star active"></i> <i
-                        class="typcn typcn-star active"></i> <i class="typcn typcn-star active"></i> <i
-                        class="typcn typcn-star"></i>
-                    <span>{{ \App\Models\Products::count() }}</span>
-                </div>
-            </div>
-            <div>
-                <label class="tx-13">{{ __('home.sections') }}</label>
-                <h5>{{ \App\Models\Sections::count() }}</h5>
-            </div>
-            <div>
-                <label class="tx-13">{{ __('home.docs') }}</label>
-                <h5>{{ \App\Models\invoices_attachments::count() }}</h5>
-            </div>
-        </div>
-    </div>
-    <!-- /breadcrumb -->
-@endsection
+@php
+    $m = fn ($v) => \App\Support\Format::money($v);
+    $user = auth()->user();
+    $firstName = \Illuminate\Support\Str::before(trim((string) $user?->name), ' ') ?: 'bonjour';
+    $today = now()->locale('fr');
+@endphp
+
 @section('content')
-
-
-    <!-- row -->
-    <div class="row row-sm">
-        <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
-            <div class="card overflow-hidden sales-card bg-primary-gradient">
-                <div class="pl-3 pt-3 pr-3 pb-2 pt-0">
-                    <div class="">
-                        <h6 class="mb-3 tx-12 text-white">{{ __('home.invoices_total') }}</h6>
-                    </div>
-                    <div class="pb-0 mt-0">
-                        <div class="d-flex">
-                            <div class="">
-                                <h4 class="tx-20 font-weight-bold mb-1 text-white">{{ \App\Models\invoices::count() }}</h4>
-                                <p class="mb-0 tx-12 text-white op-7">
-                                    {{ number_format(\App\Models\invoices::sum('Total'), 3) }} </p>
-                            </div>
-                            <span class="float-right my-auto mr-auto">
-                                <i class="fas fa-arrow-circle-up text-white"></i>
-                                <span class="text-white op-7">100%</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <span id="compositeline" class="pt-1">5,9,5,6,4,12,18,14,10,15,12,5,8,5,12,5,12,10,16,12</span>
-            </div>
+<div class="container-fluid erp-pro-page erp-home">
+    {{-- Greeting + quick actions --}}
+    <div class="erp-home-head">
+        <div>
+            <h4>Bonjour {{ $firstName }}</h4>
+            <small class="text-muted">{{ ucfirst($today->isoFormat('dddd D MMMM YYYY')) }} · {{ \App\Support\Branding::companyName() }}</small>
         </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
-            <div class="card overflow-hidden sales-card bg-danger-gradient">
-                <div class="pl-3 pt-3 pr-3 pb-2 pt-0">
-                    <div class="">
-                        <h6 class="mb-3 tx-12 text-white">{{ __('home.un_paid_invoices_total') }}</h6>
-                    </div>
-                    <div class="pb-0 mt-0">
-                        <div class="d-flex">
-                            <div class="">
-                                <h4 class="tx-20 font-weight-bold mb-1 text-white">
-                                    {{ \App\Models\invoices::where('Value_Status', '=', 2)->sum('Total') }}
-                                </h4>
-                                <p class="mb-0 tx-12 text-white op-7">
-                                    {{ \App\Models\invoices::where('Value_Status', '=', 2)->count() }}</p>
-                            </div>
-                            <span class="float-right my-auto mr-auto">
-                                <i class="fas fa-arrow-circle-down text-white"></i>
-                                <span class="text-white op-7">
-                                    @php
-                                        $invoice_count = \App\Models\invoices::count();
-                                    @endphp
-                                    @if ($invoice_count > 0)
-                                        {{ round((\App\Models\invoices::where('Value_Status', '=', 2)->count() / $invoice_count) * 100) }}
-                                    @endif
-                                </span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <span id="compositeline2" class="pt-1">3,2,4,6,12,14,8,7,14,16,12,7,8,4,3,2,2,5,6,7</span>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
-            <div class="card overflow-hidden sales-card bg-success-gradient">
-                <div class="pl-3 pt-3 pr-3 pb-2 pt-0">
-                    <div class="">
-                        <h6 class="mb-3 tx-12 text-white">{{ __('home.paid_invoices_total') }}</h6>
-                    </div>
-                    <div class="pb-0 mt-0">
-                        <div class="d-flex">
-                            <div class="">
-                                <h4 class="tx-20 font-weight-bold mb-1 text-white">
-                                    {{ \App\Models\invoices::where('Value_Status', '=', 1)->sum('Total') }}
-                                </h4>
-                                <p class="mb-0 tx-12 text-white op-7">
-                                    {{ \App\Models\invoices::where('Value_Status', '=', 1)->count() }}
-                                </p>
-                            </div>
-                            <span class="float-right my-auto mr-auto">
-                                <i class="fas fa-arrow-circle-up text-white"></i>
-                                <span class="text-white op-7">
-                                    @if ($invoice_count > 0)
-                                        %
-                                        {{ round((\App\Models\invoices::where('Value_Status', '=', 1)->count() / \App\Models\invoices::count()) * 100) }}
-                                </span>
-                                @endif
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <span id="compositeline3" class="pt-1">5,10,5,20,22,12,15,18,20,15,8,12,22,5,10,12,22,15,16,10</span>
-            </div>
-        </div>
-        <div class="col-xl-3 col-lg-6 col-md-6 col-xm-12">
-            <div class="card overflow-hidden sales-card bg-warning-gradient">
-                <div class="pl-3 pt-3 pr-3 pb-2 pt-0">
-                    <div class="">
-                        <h6 class="mb-3 tx-12 text-white">{{ __('home.partial_paid_invoices_total') }}</h6>
-                    </div>
-                    <div class="pb-0 mt-0">
-                        <div class="d-flex">
-                            <div class="">
-                                <h4 class="tx-20 font-weight-bold mb-1 text-white">
-                                    {{ \App\Models\invoices::where('Value_Status', '=', 3)->sum('Total') }}
-                                </h4>
-                                <p class="mb-0 tx-12 text-white op-7">
-                                    {{ \App\Models\invoices::where('Value_Status', '=', 3)->count() }}
-                                </p>
-                            </div>
-                            <span class="float-right my-auto mr-auto">
-                                <i class="fas fa-arrow-circle-down text-white"></i>
-                                <span class="text-white op-7">
-                                    @if ($invoice_count > 0)
-                                        %
-                                        {{ round((\App\Models\invoices::where('Value_Status', '=', 3)->count() / \App\Models\invoices::count()) * 100) }}
-                                </span>
-                                @endif
-                            </span>
-                        </div>
-                    </div>
-                </div>
-                <span id="compositeline4" class="pt-1">5,9,5,6,4,12,18,14,10,15,12,5,8,5,12,5,12,10,16,12</span>
-            </div>
+        <div class="erp-quick-actions">
+            <a href="{{ route('erp.sales-quotes.create') }}" class="btn btn-primary"><i class="fe fe-file-plus" aria-hidden="true"></i> Nouveau devis</a>
+            <a href="{{ route('erp.client-invoices.create') }}" class="btn btn-outline-primary"><i class="fe fe-file-text" aria-hidden="true"></i> Nouvelle facture</a>
+            @if($finance)
+                <a href="{{ route('erp.payments.create', ['side' => 'client']) }}" class="btn btn-outline-primary"><i class="fe fe-dollar-sign" aria-hidden="true"></i> Encaisser</a>
+            @endif
+            <a href="{{ route('erp.contacts.create') }}" class="btn btn-light"><i class="fe fe-user-plus" aria-hidden="true"></i> Nouveau contact</a>
         </div>
     </div>
-    <!-- row closed -->
 
-    <!-- row opened -->
-    <div class="row row-sm">
-        <div class="col-md-12 col-lg-12 col-xl-7">
-            <div class="card">
-                <div class="card-header bg-transparent pd-b-0 pd-t-20 bd-b-0">
-                    <div class="d-flex justify-content-between">
-                        <h4 class="card-title mb-0"> {{ __('home.status_invoices') }} </h4>
-                        <i class="mdi mdi-dots-horizontal text-gray"></i>
-                    </div>
-                    <p class="tx-12 text-muted mb-0">
-                        {{ __('home.status_invoices_title') }}</p>
-                </div>
-                <div class="card-body">
-                    {!! $chartjs->render() !!}
-                </div>
-            </div>
+    {{-- Figures of the month (finance) --}}
+    @if($finance && $month)
+        <div class="erp-kpis mb-3">
+            <a class="erp-kpi erp-kpi-link" href="{{ route('erp.accounting.index', ['tab' => 'sales', 'preset' => 'month']) }}">
+                <span class="label">Chiffre d'affaires HT · {{ $today->isoFormat('MMMM') }}</span>
+                <span class="value">{{ $m($month['sales_ht']) }}</span>
+                <small>{{ $month['sales_count'] }} facture(s) validee(s)</small>
+            </a>
+            <a class="erp-kpi erp-kpi-link" href="{{ route('erp.accounting.index', ['tab' => 'cash', 'preset' => 'month']) }}">
+                <span class="label">Encaisse ce mois</span>
+                <span class="value text-success">{{ $m($month['cash_in']) }}</span>
+                <small>decaisse {{ $m($month['cash_out']) }}</small>
+            </a>
+            <a class="erp-kpi erp-kpi-link" href="{{ route('erp.accounting.index', ['tab' => 'receivables']) }}">
+                <span class="label">A encaisser</span>
+                <span class="value">{{ $m($month['receivables']) }}</span>
+                <small class="{{ $month['overdue_receivables'] > 0 ? 'text-danger fw-semibold' : '' }}">dont en retard {{ $m($month['overdue_receivables']) }}</small>
+            </a>
+            <a class="erp-kpi erp-kpi-link" href="{{ route('erp.accounting.index', ['tab' => 'payables']) }}">
+                <span class="label">A payer aux fournisseurs</span>
+                <span class="value">{{ $m($month['payables']) }}</span>
+                <small class="{{ $month['overdue_payables'] > 0 ? 'text-danger fw-semibold' : '' }}">dont en retard {{ $m($month['overdue_payables']) }}</small>
+            </a>
         </div>
-        <div class="col-lg-12 col-xl-5" style="">
-            <div class="card card-dashboard-map-one">
-                <label class="main-content-label">{{ __('home.status_invoices2') }}</label>
-                <span class="d-block mg-b-20 text-muted tx-12">
-                    {{ __('home.status_invoices_title2') }}</span>
-                <div class="">
-                    <div style="width:105%; height: 311px;  ">
-                        {!! $chartjs_2->render() !!}
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- row closed -->
+    @endif
 
+    <div class="row g-3 mb-3">
+        {{-- What needs attention --}}
+        <div class="{{ $finance ? 'col-xl-5' : 'col-xl-7' }}">
+            <div class="card h-100"><div class="card-body">
+                <h6 class="mb-3">A faire</h6>
+                @forelse($todo as $item)
+                    <a href="{{ $item['url'] }}" class="erp-todo erp-todo-{{ $item['tone'] }}">
+                        <span class="erp-todo-icon"><i class="fe {{ $item['icon'] }}" aria-hidden="true"></i></span>
+                        <span class="erp-todo-text">
+                            <strong>{{ $item['count'] }}</strong> {{ mb_strtolower($item['label']) }}
+                            @if($item['amount'])<small class="d-block text-muted">{{ $m($item['amount']) }} TTC</small>@endif
+                        </span>
+                        <i class="fe fe-chevron-right text-muted" aria-hidden="true"></i>
+                    </a>
+                @empty
+                    <div class="erp-todo-empty"><i class="fe fe-check-circle" aria-hidden="true"></i> Tout est a jour : rien d'urgent aujourd'hui.</div>
+                @endforelse
+            </div></div>
+        </div>
+
+        {{-- 6-month trend (finance) --}}
+        @if($finance && $trend)
+            <div class="col-xl-7">
+                <div class="card h-100"><div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h6 class="mb-0">Ventes et achats HT · 6 derniers mois</h6>
+                        <a href="{{ route('erp.accounting.index', ['tab' => 'summary', 'preset' => 'year']) }}" class="small">Comptabilite <i class="fe fe-arrow-right" aria-hidden="true"></i></a>
+                    </div>
+                    <div class="erp-chart"><canvas id="erp-trend" aria-label="Ventes et achats HT par mois" role="img"></canvas></div>
+                    <details class="mt-2 small">
+                        <summary class="text-muted">Voir les chiffres</summary>
+                        <table class="table table-sm mb-0 mt-2">
+                            <thead><tr><th>Mois</th><th class="text-end">Ventes HT</th><th class="text-end">Achats HT</th></tr></thead>
+                            <tbody>
+                            @foreach($trend['labels'] as $i => $label)
+                                <tr><td>{{ $label }}</td><td class="erp-num">{{ $m($trend['sales'][$i]) }}</td><td class="erp-num">{{ $m($trend['purchases'][$i]) }}</td></tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </details>
+                </div></div>
+            </div>
+        @else
+            <div class="col-xl-5">
+                <div class="card h-100"><div class="card-body">
+                    <h6 class="mb-3">En bref</h6>
+                    <div class="erp-mini-stats">
+                        <a href="{{ route('erp.contacts.index', ['type' => 'client']) }}"><strong>{{ $counts['clients'] }}</strong><span>clients</span></a>
+                        <a href="{{ route('erp.contacts.index', ['type' => 'supplier']) }}"><strong>{{ $counts['suppliers'] }}</strong><span>fournisseurs</span></a>
+                        <a href="{{ route('erp.products.index') }}"><strong>{{ $counts['products'] }}</strong><span>produits</span></a>
+                        <a href="{{ route('erp.sales-quotes.index') }}"><strong>{{ $counts['quotes_month'] }}</strong><span>devis ce mois</span></a>
+                    </div>
+                </div></div>
+            </div>
+        @endif
     </div>
+
+    <div class="row g-3">
+        {{-- Last documents --}}
+        <div class="col-xl-8">
+            <div class="card erp-table-shell"><div class="card-body table-responsive">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Derniers documents de vente</h6>
+                    <a href="{{ route('erp.sales-quotes.index') }}" class="small">Tous les devis <i class="fe fe-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <table class="table table-hover align-middle mb-0">
+                    <thead><tr><th>Document</th><th>Client</th><th class="text-end">Montant TTC</th><th>Statut</th></tr></thead>
+                    <tbody>
+                    @forelse($recent as $doc)
+                        <tr>
+                            <td><a href="{{ $doc['url'] }}" class="fw-semibold">{{ $doc['type'] }} {{ $doc['number'] }}</a>
+                                <small class="d-block text-muted">{{ $doc['date']?->locale('fr')->diffForHumans() }}</small></td>
+                            <td>{{ $doc['contact'] ?? '-' }}</td>
+                            <td class="erp-num">{{ $m($doc['amount']) }}</td>
+                            <td>{{ \App\Support\Format::statusBadge($doc['status'], $doc['status_label']) }}</td>
+                        </tr>
+                    @empty
+                        <tr><td colspan="4" class="text-center py-4">Aucun document pour l'instant. <a href="{{ route('erp.sales-quotes.create') }}">Creer un premier devis</a></td></tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div></div>
+        </div>
+
+        {{-- Stock --}}
+        <div class="col-xl-4">
+            <div class="card h-100"><div class="card-body">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0">Stock bas</h6>
+                    <a href="{{ route('erp.products.index') }}" class="small">Produits <i class="fe fe-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                @forelse($lowStock as $product)
+                    <a href="{{ route('erp.products.show', $product) }}" class="erp-stock-row">
+                        <span class="text-truncate">{{ $product->product_name }}</span>
+                        <span class="text-nowrap"><strong class="text-danger">{{ \App\Support\Format::qty($product->stock_quantity) }}</strong>
+                            <small class="text-muted">/ min {{ \App\Support\Format::qty($product->min_stock_alert_level) }}</small></span>
+                    </a>
+                @empty
+                    <div class="erp-todo-empty"><i class="fe fe-check-circle" aria-hidden="true"></i> Aucun produit sous son seuil d'alerte.</div>
+                @endforelse
+            </div></div>
+        </div>
     </div>
-    <!-- Container closed -->
+</div>
 @endsection
+
 @section('js')
-    <!--Internal  Chart.bundle js -->
-    <script src="{{ URL::asset('assets/plugins/chart.js/Chart.bundle.min.js') }}"></script>
-    <!-- Moment js -->
-    <script src="{{ URL::asset('assets/plugins/raphael/raphael.min.js') }}"></script>
-    <!--Internal  Flot js-->
-    <script src="{{ URL::asset('assets/plugins/jquery.flot/jquery.flot.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/jquery.flot/jquery.flot.pie.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/jquery.flot/jquery.flot.resize.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/jquery.flot/jquery.flot.categories.js') }}"></script>
-    <script src="{{ URL::asset('assets/js/dashboard.sampledata.js') }}"></script>
-    <script src="{{ URL::asset('assets/js/chart.flot.sampledata.js') }}"></script>
-    <!--Internal Apexchart js-->
-    <script src="{{ URL::asset('assets/js/apexcharts.js') }}"></script>
-    <!-- Internal Map -->
-    <script src="{{ URL::asset('assets/plugins/jqvmap/jquery.vmap.min.js') }}"></script>
-    <script src="{{ URL::asset('assets/plugins/jqvmap/maps/jquery.vmap.usa.js') }}"></script>
-    <script src="{{ URL::asset('assets/js/modal-popup.js') }}"></script>
-    <!--Internal  index js -->
-    <script src="{{ URL::asset('assets/js/index.js') }}"></script>
-    <script src="{{ URL::asset('assets/js/jquery.vmap.sampledata.js') }}"></script>
+@if($finance && $trend)
+    <script src="{{ \App\Support\Asset::url('assets/plugins/chart.js/Chart.bundle.min.js') }}"></script>
+    <script>
+    (function () {
+        var canvas = document.getElementById('erp-trend');
+        if (!canvas || !window.Chart) return;
+        var money = function (v) { return Number(v).toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); };
+        // Categorical slots 1 and 2 of the validated palette (blue / orange), light and dark steps.
+        var colours = function () {
+            var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+            return dark
+                ? { sales: '#3987e5', purchases: '#d95926', gap: '#162133', text: '#9fadbf', grid: '#26334a', zero: '#34425a' }
+                : { sales: '#2a78d6', purchases: '#eb6834', gap: '#ffffff', text: '#5b6b7f', grid: '#eef1f5', zero: '#d9e1ea' };
+        };
+        var c = colours();
+        var chart = new Chart(canvas.getContext('2d'), {
+            type: 'bar',
+            data: {
+                labels: @json($trend['short']),
+                datasets: [
+                    { label: 'Ventes HT', data: @json($trend['sales']), backgroundColor: c.sales, borderColor: c.gap, borderWidth: 1 },
+                    { label: 'Achats HT', data: @json($trend['purchases']), backgroundColor: c.purchases, borderColor: c.gap, borderWidth: 1 }
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                legend: { position: 'top', align: 'end', labels: { boxWidth: 12, fontColor: c.text } },
+                tooltips: {
+                    mode: 'index', intersect: false,
+                    callbacks: { label: function (item, data) { return data.datasets[item.datasetIndex].label + ' : ' + money(item.yLabel); } }
+                },
+                hover: { mode: 'index', intersect: false },
+                scales: {
+                    xAxes: [{ gridLines: { display: false }, ticks: { fontColor: c.text }, barPercentage: 0.8, categoryPercentage: 0.6 }],
+                    yAxes: [{ gridLines: { color: c.grid, zeroLineColor: c.zero },
+                              ticks: { beginAtZero: true, fontColor: c.text, maxTicksLimit: 5, callback: function (v) { return Number(v).toLocaleString('fr-FR'); } } }]
+                }
+            }
+        });
+
+        document.addEventListener('erp-theme-change', function () {
+            var t = colours();
+            chart.data.datasets[0].backgroundColor = t.sales;
+            chart.data.datasets[1].backgroundColor = t.purchases;
+            chart.data.datasets.forEach(function (d) { d.borderColor = t.gap; });
+            chart.options.legend.labels.fontColor = t.text;
+            chart.options.scales.xAxes[0].ticks.fontColor = t.text;
+            chart.options.scales.yAxes[0].ticks.fontColor = t.text;
+            chart.options.scales.yAxes[0].gridLines.color = t.grid;
+            chart.options.scales.yAxes[0].gridLines.zeroLineColor = t.zero;
+            chart.update();
+        });
+    })();
+    </script>
+@endif
 @endsection

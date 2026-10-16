@@ -1,4 +1,4 @@
-<!-- Message Modal -->
+﻿<!-- Message Modal -->
 		<div class="modal fade" id="chatmodel" tabindex="-1" role="dialog"  aria-hidden="true">
 			<div class="modal-dialog modal-dialog-right chatbox" role="document">
 				<div class="modal-content chat border-0">
@@ -235,3 +235,7 @@
 			</div><!-- modal-dialog -->
 		</div>
 <!-- modal -->
+
+
+
+

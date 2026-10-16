@@ -1,4 +1,4 @@
-@extends('layouts.master')
+﻿@extends('layouts.master')
 @section('css')
     <!-- Internal Data table css -->
     <link href="{{ URL::asset('assets/plugins/datatable/css/dataTables.bootstrap4.min.css') }}" rel="stylesheet" />
@@ -15,7 +15,7 @@
     <link href="{{ URL::asset('assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet">
 
 @section('title')
-    تقرير العملاء - مورا سوفت للادارة الفواتير
+    Rapport des clients - ERP
 @stop
 @endsection
 @section('page-header')
@@ -23,8 +23,8 @@
 <div class="breadcrumb-header justify-content-between">
     <div class="my-auto">
         <div class="d-flex">
-            <h4 class="content-title mb-0 my-auto">التقارير</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/ تقرير
-                العملاء</span>
+            <h4 class="content-title mb-0 my-auto">Rapports</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/ Rapport
+                clients</span>
         </div>
     </div>
 </div>
@@ -37,7 +37,7 @@
         <button aria-label="Close" class="close" data-dismiss="alert" type="button">
             <span aria-hidden="true">&times;</span>
         </button>
-        <strong>خطا</strong>
+        <strong>Erreur</strong>
         <ul>
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
@@ -60,28 +60,19 @@
 
 
                     <div class="row">
-
-                        <div class="col">
-                            <label for="inputName" class="control-label">القسم</label>
-                            <select name="Section" class="form-control select2" onclick="console.log($(this).val())"
-                                onchange="console.log('change is firing')">
-                                <!--placeholder-->
-                                <option value="" selected disabled>حدد القسم</option>
-                                @foreach ($sections as $section)
-                                    <option value="{{ $section->id }}"> {{ $section->section_name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
                         <div class="col-lg-3 mg-t-20 mg-lg-t-0">
-                            <label for="inputName" class="control-label">المنتج</label>
+                            <label for="inputName" class="control-label">Produit</label>
                             <select id="product" name="product" class="form-control select2">
+                                <option value="">Tous les produits</option>
+                                @foreach ($products as $product)
+                                    <option value="{{ $product->product_name }}" {{ (request('product') === $product->product_name) ? 'selected' : '' }}>{{ $product->product_name }}</option>
+                                @endforeach
                             </select>
                         </div>
 
 
                         <div class="col-lg-3" id="start_at">
-                            <label for="exampleFormControlSelect1">من تاريخ</label>
+                            <label for="exampleFormControlSelect1">De la date</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <div class="input-group-text">
@@ -93,7 +84,7 @@
                         </div>
 
                         <div class="col-lg-3" id="end_at">
-                            <label for="exampleFormControlSelect1">الي تاريخ</label>
+                            <label for="exampleFormControlSelect1">A la date</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <div class="input-group-text">
@@ -107,7 +98,7 @@
 
                     <div class="row">
                         <div class="col-sm-1 col-md-1">
-                            <button class="btn btn-primary btn-block">بحث</button>
+                            <button class="btn btn-primary btn-block">Rechercher</button>
                         </div>
                     </div>
                 </form>
@@ -120,17 +111,17 @@
                             <thead>
                                 <tr>
                                     <th class="border-bottom-0">#</th>
-                                    <th class="border-bottom-0">رقم الفاتورة</th>
-                                    <th class="border-bottom-0">تاريخ القاتورة</th>
-                                    <th class="border-bottom-0">تاريخ الاستحقاق</th>
-                                    <th class="border-bottom-0">المنتج</th>
-                                    <th class="border-bottom-0">القسم</th>
-                                    <th class="border-bottom-0">الخصم</th>
-                                    <th class="border-bottom-0">نسبة الضريبة</th>
-                                    <th class="border-bottom-0">قيمة الضريبة</th>
-                                    <th class="border-bottom-0">الاجمالي</th>
-                                    <th class="border-bottom-0">الحالة</th>
-                                    <th class="border-bottom-0">ملاحظات</th>
+                                    <th class="border-bottom-0">Numero de facture</th>
+                                    <th class="border-bottom-0">Date de facture</th>
+                                    <th class="border-bottom-0">Date d echeance</th>
+                                    <th class="border-bottom-0">Produit</th>
+                                    <th class="border-bottom-0">Section</th>
+                                    <th class="border-bottom-0">Remise</th>
+                                    <th class="border-bottom-0">Taux de TVA</th>
+                                    <th class="border-bottom-0">Valeur de TVA</th>
+                                    <th class="border-bottom-0">Total</th>
+                                    <th class="border-bottom-0">Etat</th>
+                                    <th class="border-bottom-0">Notes</th>
 
                                 </tr>
                             </thead>
@@ -144,9 +135,7 @@
                                         <td>{{ $invoice->invoice_date }}</td>
                                         <td>{{ $invoice->due_date }}</td>
                                         <td>{{ $invoice->product }}</td>
-                                        <td><a
-                                                href="{{ url('InvoicesDetails') }}/{{ $invoice->id }}">{{ $invoice->section->section_name }}</a>
-                                        </td>
+                                        <td>-</td>
                                         <td>{{ $invoice->Discount }}</td>
                                         <td>{{ $invoice->Rate_VAT }}</td>
                                         <td>{{ $invoice->Value_VAT }}</td>
@@ -226,32 +215,8 @@
 
 </script>
 
-<script>
-    $(document).ready(function() {
-        $('select[name="Section"]').on('change', function() {
-            var SectionId = $(this).val();
-            if (SectionId) {
-                $.ajax({
-                    url: "{{ URL::to('section') }}/" + SectionId,
-                    type: "GET",
-                    dataType: "json",
-                    success: function(data) {
-                        $('select[name="product"]').empty();
-                        $.each(data, function(key, value) {
-                            $('select[name="product"]').append('<option value="' +
-                                value + '">' + value + '</option>');
-                        });
-                    },
-                });
-
-            } else {
-                console.log('AJAX load did not work');
-            }
-        });
-
-    });
-
-</script>
-
-
 @endsection
+
+
+
+

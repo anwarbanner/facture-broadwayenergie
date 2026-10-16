@@ -1,4 +1,4 @@
-@props(['errors'])
+﻿@props(['errors'])
 
 @if ($errors->any())
     <div {{ $attributes }}>
@@ -13,3 +13,7 @@
         </ul>
     </div>
 @endif
+
+
+
+

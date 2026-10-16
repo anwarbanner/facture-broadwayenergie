@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Needs the server cron: * * * * * php /path/to/artisan schedule:run
+        $schedule->command('invoices:refresh-statuses')->dailyAt('01:00')->withoutOverlapping();
     }
 
     /**

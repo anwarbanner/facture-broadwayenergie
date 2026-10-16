@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Products;
-use App\Models\Sections;
 use Illuminate\Http\Request;
 
 class ProductsController extends Controller
@@ -16,8 +15,7 @@ class ProductsController extends Controller
     public function index()
     {
         $products = Products::all();
-        $sections = Sections::all();
-        return view('products.products', compact('sections','products'));
+        return view('products.products', compact('products'));
     }
 
     /**
@@ -40,10 +38,9 @@ class ProductsController extends Controller
     {
         Products::create([
             'Product_name' => $request->Product_name,
-            'section_id' => $request->section_id,
             'description' => $request->description,
         ]);
-        session()->flash('Add', 'تم اضافة المنتج بنجاح ');
+        session()->flash('Add', 'Produit ajoute.');
         return redirect('/products');
     }
 
@@ -79,15 +76,13 @@ class ProductsController extends Controller
     public function update(Request $request)
     {
        $product = Products::findOrFail($request->pro_id);
-       
-       $sec_id = Sections::where('section_name', $request->section_name)->first()->id;
+
        $product->update([
            "product_name" => $request->product_name,
-            "section_id" => $sec_id,
             "description" => $request->description
        ]);
        
-       session()->flash('Edit', 'تم تعديل المنتج بنجاح ');
+       session()->flash('Edit', 'Produit modifie.');
        return redirect('/products');
        
     }
@@ -101,7 +96,7 @@ class ProductsController extends Controller
     public function destroy(Request $request)
     {
         Products::findOrFail($request->pro_id)->delete();
-        session()->flash('Delete', 'تم حذف  المنتج بنجاح ');
+        session()->flash('Delete', 'Produit supprime.');
         return redirect('/products');
     }
 }

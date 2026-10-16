@@ -19,7 +19,7 @@ class EnsureActiveUser
     public function handle(Request $request, Closure $next)
     {
         if($request->user()->status != 'active') {
-            Session::flash('unactive', 'برجاء العلم ان حسابكم غير مفعل يرجي التواصل مع الاداره');
+            Session::flash('unactive', 'Votre compte n\'est pas encore active. Contactez un administrateur.');
             Auth::logout();
             return redirect('login');
         }

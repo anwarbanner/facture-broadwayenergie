@@ -20,11 +20,19 @@ public function run()
         'unpaid_invoices_list',
         'partial_paid_invoices_list',
         'trashed_invoices',
+        'تعديل مستخدم',
+        'حذف مستخدم',
+        'user_edit',
+        'user_delete',
+        'role_create',
+        'role_view',
+        'role_edit',
+        'role_delete',
     ];
 
     foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
-        }
+        Permission::firstOrCreate(['name' => $permission]);
     }
-    
+
+}
 }

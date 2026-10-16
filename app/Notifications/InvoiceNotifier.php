@@ -45,16 +45,16 @@ class InvoiceNotifier extends Notification
     {
         $url = 'http://localhost:8000/InvoicesDetails/' . $this->invoice_id;
         /*return (new MailMessage)
-                    ->subject('تنبيه بعملية اضافه جديده لفاتوره اخري')
-                    ->action('عرض الفاتوره الجديده', url($url))
-                    ->line('Thank you for using our application!');*/
-        
+                    ->subject('Nouvelle facture ajoutee')
+                    ->action('Voir la facture', url($url))
+                    ->line("Merci d'utiliser notre application.");*/
+
+        // Sender: MAIL_FROM_ADDRESS / MAIL_FROM_NAME from .env (no hard-coded template sender).
         return (new MailMessage)
-                ->greeting('Hello!')
-                ->from('barrett@example.com', 'Barrett Blair')
-                ->line('One of your invoices has been paid!')
-                ->action('View Invoice', $url)
-                ->line('Thank you for using our application!');
+                ->greeting('Bonjour,')
+                ->line('Une de vos factures a ete payee.')
+                ->action('Voir la facture', $url)
+                ->line("Merci d'utiliser notre application.");
     }
 
     /**

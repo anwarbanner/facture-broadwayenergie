@@ -1,4 +1,4 @@
-@component('mail::message')
+﻿@component('mail::message')
 # Order Shipped
  
 Your order has been shipped!
@@ -10,3 +10,6 @@ View Order
 Thanks,<br>
 {{ config('app.name') }}
 @endcomponent
+
+
+

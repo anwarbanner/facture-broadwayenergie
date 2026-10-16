@@ -1,2 +1,6 @@
-انت غير مفعل
-تواصل مع الاداره
+﻿Votre compte est inactif
+Veuillez contacter l administration
+
+
+
+

@@ -15,7 +15,7 @@
     <link href="{{ URL::asset('assets/plugins/select2/css/select2.min.css') }}" rel="stylesheet">
 
 @section('title')
-    تقرير الفواتير - مورا سوفت للادارة الفواتير
+    Rapport des factures - ERP
 @stop
 @endsection
 @section('page-header')
@@ -23,8 +23,8 @@
 <div class="breadcrumb-header justify-content-between">
     <div class="my-auto">
         <div class="d-flex">
-            <h4 class="content-title mb-0 my-auto">التقارير</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/ تقرير
-                الفواتير</span>
+            <h4 class="content-title mb-0 my-auto">Rapports</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/ Rapport
+                Factures</span>
         </div>
     </div>
 </div>
@@ -37,7 +37,7 @@
         <button aria-label="Close" class="close" data-dismiss="alert" type="button">
             <span aria-hidden="true">&times;</span>
         </button>
-        <strong>خطا</strong>
+        <strong>Erreur</strong>
         <ul>
             @foreach ($errors->all() as $error)
                 <li>{{ $error }}</li>
@@ -61,41 +61,41 @@
 
                     <div class="col-lg-3">
                         <label class="rdiobox">
-                            <input checked name="rdio" type="radio" value="1" id="type_div"> <span>بحث بنوع
-                                الفاتورة</span></label>
+                            <input checked name="rdio" type="radio" value="1" id="type_div"> <span>Recherche par type
+                                facture</span></label>
                     </div>
 
 
                     <div class="col-lg-3 mg-t-20 mg-lg-t-0">
-                        <label class="rdiobox"><input name="rdio" value="2" type="radio"><span>بحث برقم الفاتورة
+                        <label class="rdiobox"><input name="rdio" value="2" type="radio"><span>Recherche par numero de facture
                             </span></label>
                     </div><br><br>
 
                     <div class="row">
 
                         <div class="col-lg-3 mg-t-20 mg-lg-t-0" id="type">
-                            <p class="mg-b-10">تحديد نوع الفواتير</p><select class="form-control select2" name="type"
+                            <p class="mg-b-10">Selectionner le type de factures</p><select class="form-control select2" name="type"
                                 required>
-                                <option value="{{ $type ?? 'حدد نوع الفواتير' }}" selected>
-                                    {{ $type ?? 'حدد نوع الفواتير' }}
+                                <option value="{{ $type ?? 'Selectionner le type de factures' }}" selected>
+                                    {{ $type ?? 'Selectionner le type de factures' }}
                                 </option>
                                 
-                                <option value="مدفوعة">الفواتير المدفوعة</option>
-                                <option value="غير مدفوعة">الفواتير الغير مدفوعة</option>
-                                <option value="مدفوعة جزئيا">الفواتير المدفوعة جزئيا</option>
+                                <option value="??????">Factures payees</option>
+                                <option value="??? ??????">Factures impayees</option>
+                                <option value="?????? ?????">Factures partiellement payees</option>
 
                             </select>
                         </div><!-- col-4 -->
 
 
                         <div class="col-lg-3 mg-t-20 mg-lg-t-0" id="invoice_number">
-                            <p class="mg-b-10">البحث برقم الفاتورة</p>
+                                                            <p class="mg-b-10">Recherche par numero de facture</p>
                             <input type="text" class="form-control" id="invoice_number" name="invoice_number">
 
                         </div><!-- col-4 -->
 
                         <div class="col-lg-3" id="start_at">
-                            <label for="exampleFormControlSelect1">من تاريخ</label>
+                            <label for="exampleFormControlSelect1">De la date</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <div class="input-group-text">
@@ -107,7 +107,7 @@
                         </div>
 
                         <div class="col-lg-3" id="end_at">
-                            <label for="exampleFormControlSelect1">الي تاريخ</label>
+                            <label for="exampleFormControlSelect1">A la date</label>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <div class="input-group-text">
@@ -121,7 +121,7 @@
 
                     <div class="row">
                         <div class="col-sm-1 col-md-1">
-                            <button class="btn btn-primary btn-block">بحث</button>
+                            <button class="btn btn-primary btn-block">Rechercher</button>
                         </div>
                     </div>
                 </form>
@@ -134,17 +134,17 @@
                             <thead>
                                 <tr>
                                     <th class="border-bottom-0">#</th>
-                                    <th class="border-bottom-0">رقم الفاتورة</th>
-                                    <th class="border-bottom-0">تاريخ القاتورة</th>
-                                    <th class="border-bottom-0">تاريخ الاستحقاق</th>
-                                    <th class="border-bottom-0">المنتج</th>
-                                    <th class="border-bottom-0">القسم</th>
-                                    <th class="border-bottom-0">الخصم</th>
-                                    <th class="border-bottom-0">نسبة الضريبة</th>
-                                    <th class="border-bottom-0">قيمة الضريبة</th>
-                                    <th class="border-bottom-0">الاجمالي</th>
-                                    <th class="border-bottom-0">الحالة</th>
-                                    <th class="border-bottom-0">ملاحظات</th>
+                                    <th class="border-bottom-0">Numero de facture</th>
+                                    <th class="border-bottom-0">Date de facture</th>
+                                    <th class="border-bottom-0">Date d echeance</th>
+                                    <th class="border-bottom-0">Produit</th>
+                                    <th class="border-bottom-0">Section</th>
+                                    <th class="border-bottom-0">Remise</th>
+                                    <th class="border-bottom-0">Taux de TVA</th>
+                                    <th class="border-bottom-0">Valeur de TVA</th>
+                                    <th class="border-bottom-0">Total</th>
+                                    <th class="border-bottom-0">Etat</th>
+                                    <th class="border-bottom-0">Notes</th>
 
                                 </tr>
                             </thead>
@@ -159,7 +159,7 @@
                                         <td>{{ $invoice->due_date }}</td>
                                         <td>{{ $invoice->product }}</td>
                                         <td><a
-                                                href="{{ url('InvoicesDetails') }}/{{ $invoice->id }}">{{ $invoice->section->section_name }}</a>
+                                                href="{{ url('InvoicesDetails') }}/{{ $invoice->id }}">-</a>
                                         </td>
                                         <td>{{ $invoice->Discount }}</td>
                                         <td>{{ $invoice->Rate_VAT }}</td>
@@ -264,3 +264,8 @@
 
 
 @endsection
+
+
+
+
+

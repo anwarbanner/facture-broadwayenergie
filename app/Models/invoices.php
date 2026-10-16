@@ -1,7 +1,6 @@
 <?php
 
 namespace App\Models;
-use App\Models\Sections;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -19,7 +18,6 @@ class invoices extends Model
         'invoice_date',
         'Due_date',
         'product',
-        'section_id',
         'Amount_collection',
         'Amount_Commission',
         'Discount',
@@ -32,7 +30,4 @@ class invoices extends Model
         'Payment_Date',
     ];
     
-    public function section() {
-        return $this->belongsTo(Sections::class);
-    }
 }

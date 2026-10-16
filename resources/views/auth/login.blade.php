@@ -1,91 +1,74 @@
-@extends('layouts.master2')
+﻿@extends('layouts.master2')
 
 @section('title')
-موقع الفواتير  - تسجيل الدخول 
+ERP - Connexion 
 @stop
 
 @section('css')
 <!-- Sidemenu-respoansive-tabs css -->
 <link href="{{URL::asset('assets/plugins/sidemenu-responsive-tabs/css/sidemenu-responsive-tabs.css')}}" rel="stylesheet">
+<link href="{{ \App\Support\Asset::url('assets/css/auth-pro.css') }}" rel="stylesheet">
 @endsection
 @section('content')
-<div class="container-fluid">
+<div class="container-fluid auth-pro-page">
     <div class="row no-gutter">
-            <!-- The image half -->
-            <!-- The content half -->
-        <div class="col-md-6 col-lg-6 col-xl-5 bg-white">
-            <div class="login d-flex align-items-center py-2">
+        <div class="col-lg-5 auth-left">
+            <div class="auth-form-shell">
+                <a href="{{ route('dashboard') }}" class="auth-brand">
+                    <x-brand-logo class="auth-brand-logo" />
+                </a>
 
-                    <!-- Demo content-->
-                <div class="container p-0">
-                    <div class="row">
-                        <div class="col-md-10 col-lg-10 col-xl-9 mx-auto">
-                            <div class="card-sigin">
-                                <div class="mb-5 d-flex"> <a href="{{ url('/' . $page='Home') }}"><img src="https://res.cloudinary.com/dryaaexki/image/upload/v1656586826/invoice/logoinvoice_luqkik.png" class="sign-favicon ht-40" alt="logo"></a><h1 class="main-logo1 ml-1 mr-0 my-auto tx-28">.ZED<span> IN</span>C</h1></div>
-                                @if (Session::has('unactive'))
-                                    <div class="alert alert-danger">{{ Session::get('unactive') }}</div>
-                                @endif
-                                <div class="card-sigin">
-                                    <div class="main-signup-header">
-                                        <h2>مرحبا بك</h2>
-                                        <h5 class="font-weight-semibold mb-4">تسجيل الدخول</h5>
-                                        <form method="POST" action="{{ route('login') }}">
-                                            @csrf
-                                            <div class="form-group">
-                                            <label>البريد الالكتروني</label>
-                                            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
-                                             @error('email')
-                                             <span class="invalid-feedback" role="alert">
-                                             <strong>{{ $message }}</strong>
-                                             </span>
-                                             @enderror
-                                                </div>
+                @if (Session::has('registered'))
+                    <div class="alert alert-success">{{ Session::get('registered') }}</div>
+                @endif
+                @if (Session::has('unactive'))
+                    <div class="alert alert-danger">{{ Session::get('unactive') }}</div>
+                @endif
 
-                                                <div class="form-group">
-                                                <label>الرقم السري</label> 
+                <h2 class="auth-title">Connexion</h2>
+                <p class="auth-subtitle">Accedez a votre espace ERP en toute securite.</p>
 
-                                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
-
-                                            @error('password')
-                                            <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                            </span>
-                                                 @enderror
-                                            <div class="form-group row">
-                                                <div class="col-md-6 offset-md-4">
-                                                     <div class="form-check">
-                                                          <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-                                                           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                                                          <label class="form-check-label" for="remember">
-                                                                 تذكرني
-                                                          </label>
-                                                     </div>
-                                                 </div>
-                                             </div>
-                                                 </div>
-                                            <button type="submit" class="btn btn-main-primary btn-block">
-                                            تسجيل الدخول
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                        </div>
-                        </div>
+                <form method="POST" action="{{ route('login') }}" class="mt-4">
+                    @csrf
+                    <div class="form-group">
+                        <label for="email">E-mail</label>
+                        <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                        @error('email')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
                     </div>
-                </div><!-- End -->
-            </div>
-        </div><!-- End -->
 
-<div class="col-md-6 col-lg-6 col-xl-7 d-none d-md-flex bg-primary-transparent">
-                    <div class="row wd-100p mx-auto text-center">
-                            <div class="col-md-12 col-lg-12 col-xl-12 my-auto mx-auto wd-100p">
-                                    <img src="https://res.cloudinary.com/dryaaexki/image/upload/v1656586814/invoice/login_img_d02hmc.jpg" class="my-auto ht-xl-80p wd-md-100p wd-xl-80p mx-auto" alt="logo">
-                            </div>
+                    <div class="form-group">
+                        <label for="password">Mot de passe</label>
+                        <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
+                        @error('password')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
                     </div>
-            </div>
 
+                    <div class="auth-remember">
+                        <input class="form-check-input m-0" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
+                        <label class="form-check-label mb-0" for="remember">Se souvenir de moi</label>
+                    </div>
+
+                    <button type="submit" class="btn btn-auth-submit btn-block mt-4">Connexion</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-lg-7 d-none d-lg-flex auth-right">
+            <div class="auth-hero">
+                <x-brand-logo class="auth-hero-logo" :show-name="false" />
+                <h3>{{ \App\Support\Branding::companyName() }}</h3>
+                <p>Pilotez vos ventes, achats, stocks et facturation depuis une interface unifiee et professionnelle.</p>
+            </div>
+        </div>
     </div>
 </div>
 @endsection
 @section('js')
 @endsection
+
+
+
+

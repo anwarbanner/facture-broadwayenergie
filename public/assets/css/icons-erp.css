@@ -1,0 +1,11 @@
+@charset "UTF-8";
+
+/*
+ * Icon fonts used by the application (2026-09-28, page speed). icons.css imported 11 icon packs
+ * (each with its own font files); the ERP uses Feather (fe fe-*), the back-to-top arrow (Line Awesome),
+ * and the read-only legacy pages still use Font Awesome and Material Design Icons.
+ */
+@import url("../plugins/feather/feather.css");
+@import url("../plugins/line-awesome/css/line-awesome.min.css");
+@import url("../plugins/fontawesome-free/css/all.min.css");
+@import url("../plugins/materialdesignicons/materialdesignicons.css");

@@ -3,16 +3,16 @@
 namespace App\Http\Controllers;
 
 use App\Models\invoices;
-use App\Models\Sections;
+use App\Models\Products;
 use App\Models\invoices_details;
 
 use App\Mail\invoiceMail;
 use Illuminate\Support\Facades\Mail;
 
 use App\Models\invoices_attachments;
+use App\Support\InvoiceAttachmentStorage;
 use Illuminate\Http\Request;
 use Auth;
-use Illuminate\Support\Facades\DB;
 
 use App\Notifications\InvoiceNotifier;
 use App\Models\User;
@@ -44,7 +44,7 @@ class InvoicesController extends Controller
     }
     public function index()
     {
-        $invoices = invoices::all();
+        $invoices = invoices::query()->latest('id')->paginate(100);
         return view('invoices.invoices', compact('invoices'));
     }
     /**
@@ -52,9 +52,9 @@ class InvoicesController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getProducts($id)
+    public function getProducts()
     {
-        $products = DB::table('products')->where('section_id',$id)->pluck('product_name', 'id');
+        $products = Products::query()->orderBy('product_name')->pluck('product_name', 'id');
         return json_encode($products);
     }
 
@@ -65,8 +65,9 @@ class InvoicesController extends Controller
      */
     public function create()
     {
-        $sections = Sections::all();
-        return view('invoices.create', compact('sections'));
+        $products = Products::query()->orderBy('product_name')->get();
+
+        return view('invoices.create', compact('products'));
     }
 
     /**
@@ -77,12 +78,18 @@ class InvoicesController extends Controller
      */
     public function store(Request $request)
     {
-        invoices::create([
+        // invoice_number is also the attachment folder name: no slashes or "..".
+        $request->validate([
+            'invoice_number' => ['required', 'string', 'max:50', 'not_regex:/[\/\\\\]|\.\./'],
+            'pic' => 'nullable|' . InvoiceAttachmentStorage::VALIDATION_RULE,
+        ]);
+
+        $invoice = invoices::create([
             'invoice_number' => $request->invoice_number,
             'invoice_date' => $request->invoice_Date,
             'Due_date' => $request->Due_date,
             'product' => $request->product,
-            'section_id' => $request->Section,
+            'section_id' => null,
             'Amount_collection' => $request->Amount_collection,
             'Amount_Commission' => $request->Amount_Commission,
             'Discount' => $request->Discount,
@@ -94,13 +101,11 @@ class InvoicesController extends Controller
             'note' => $request->note,
         ]);
 
-        $invoice_id = invoices::latest()->first()->id;
-
         invoices_details::create([
-            'id_Invoice' => $invoice_id,
+            'id_Invoice' => $invoice->id,
             'invoice_number' => $request->invoice_number,
             'product' => $request->product,
-            'Section' => $request->Section,
+            'Section' => '',
             'Status' => 'غير مدفوعة',
             'Value_Status' => 3,
             'note' => $request->note,
@@ -108,35 +113,28 @@ class InvoicesController extends Controller
         ]);
 
         if ($request->hasFile('pic')) {
-
-            $invoice_id = Invoices::latest()->first()->id;
-            $image = $request->file('pic');
-            $file_name = $image->getClientOriginalName();
-            $invoice_number = $request->invoice_number;
+            $invoice_number = (string) $invoice->invoice_number;
+            $file_name = InvoiceAttachmentStorage::store($request->file('pic'), $invoice_number);
 
             $attachments = new invoices_attachments();
             $attachments->file_name = $file_name;
             $attachments->invoice_number = $invoice_number;
             $attachments->Created_by = Auth::user()->name;
-            $attachments->invoice_id = $invoice_id;
+            $attachments->invoice_id = $invoice->id;
             $attachments->save();
-
-            // move pic
-            $imageName = $request->pic->getClientOriginalName();
-            $request->pic->move(public_path('Attachments/' . $invoice_number), $imageName);
         }
         $cuser = User::first();
         
        // $cuser->notify(new InvoiceNotifier($invoice_id));
 
        // Notification::send($cuser, new InvoiceNotifier($invoice_id));
-        $url = 'http://laravel-invoice-app-system-000.herokuapp.com/' . $invoice_id;//'http://localhost:8000/InvoicesDetails/' . $invoice_id;
+        $url = 'http://laravel-invoice-app-system-000.herokuapp.com/' . $invoice->id;//'http://localhost:8000/InvoicesDetails/' . $invoice_id;
         Mail::to($cuser)->send(new invoiceMail($url));
         
         
         $user = \App\Models\User::get();
         //// $user = \App\Models\User::find(Auth::user()->id); ///For the authenticated user
-        $last_invoice = invoices::latest()->first();
+        $last_invoice = $invoice;
 
         
     foreach ($user as $u) {
@@ -144,7 +142,7 @@ class InvoicesController extends Controller
 }
     
         
-        session()->flash('Add', 'تم اضافة الفاتورة بنجاح');
+        session()->flash('Add', 'Facture ajoutee.');
         return back();
     }
 
@@ -159,8 +157,9 @@ class InvoicesController extends Controller
     public function edit($id)
     {
         $invoices = invoices::where('id', $id)->first();
-        $sections = Sections::all();
-        return view('invoices.edit_invoice', compact('sections', 'invoices'));
+        $products = Products::query()->orderBy('product_name')->get();
+
+        return view('invoices.edit_invoice', compact('products', 'invoices'));
     }
      /**
      * Display the specified resource.
@@ -175,7 +174,7 @@ class InvoicesController extends Controller
     public function statusUpdate($id, Request $request) {
         $invoices = invoices::findOrFail($id);
 
-        if($request->status === 'مدفوعة'){
+        if($request->Status === 'مدفوعة'){
             $invoices->update([
                 'Value_Status' => 1,
                 'status' => $request->Status,
@@ -186,7 +185,7 @@ class InvoicesController extends Controller
                 'id_Invoice' => $request->invoice_id,
                 'invoice_number' => $request->invoice_number,
                 'product' => $request->product,
-                'Section' => $request->Section,
+                'Section' => '',
                 'Status' => $request->Status,
                 'Value_Status' => 1,
                 'note' => $request->note,
@@ -203,7 +202,7 @@ class InvoicesController extends Controller
                 'id_Invoice' => $request->invoice_id,
                 'invoice_number' => $request->invoice_number,
                 'product' => $request->product,
-                'Section' => $request->Section,
+                'Section' => '',
                 'Status' => $request->Status,
                 'Value_Status' => 3,
                 'note' => $request->note,
@@ -212,7 +211,7 @@ class InvoicesController extends Controller
             ]);
         }
 
-        session()->flash('Status_Update', 'تم تحديث حالة الدفع بنجاح');
+        session()->flash('Status_Update', 'Etat de paiement mis a jour.');
         return redirect('/invoices');
     }
 
@@ -231,7 +230,7 @@ class InvoicesController extends Controller
             'invoice_Date' => $request->invoice_date,
             'Due_date' => $request->due_date,
             'product' => $request->product,
-            'section_id' => $request->Section,
+            'section_id' => null,
             'Amount_collection' => $request->Amount_collection,
             'Amount_Commission' => $request->Amount_Commission,
             'Discount' => $request->Discount,
@@ -241,7 +240,7 @@ class InvoicesController extends Controller
             'note' => $request->note,
         ]);
 
-        session()->flash('edit', 'تم تعديل الفاتورة بنجاح');
+        session()->flash('edit', 'Facture modifiee.');
         return back();
     }
 
@@ -260,7 +259,7 @@ class InvoicesController extends Controller
         $Details = invoices_attachments::where('invoice_id', $id)->first();
         if($request->id_page == 2){
             $invoices->delete();
-            session()->flash('trash_invoice', 'تم ارشفة الفاتوره بنجاح');
+            session()->flash('trash_invoice', 'Facture archivee.');
             return back();
         } else {
             if (!empty($Details->invoice_number)) {
@@ -270,7 +269,7 @@ class InvoicesController extends Controller
         
         $invoices->forceDelete();
 
-        session()->flash('delete_invoice', 'تم حذف الفاتوره بنجاح');
+        session()->flash('delete_invoice', 'Facture supprimee.');
         return back();
         }
         
@@ -281,22 +280,22 @@ class InvoicesController extends Controller
     
     public function paid()
     {
-        $invoices = invoices::where('Value_Status', 1)->get();
+        $invoices = invoices::query()->where('Value_Status', 1)->latest('id')->paginate(100);
         return view('invoices.paid_invoices', compact('invoices'));
     }  
     public function unpaid()
     {
-        $invoices = invoices::where('Value_Status', 2)->get();
+        $invoices = invoices::query()->where('Value_Status', 2)->latest('id')->paginate(100);
         return view('invoices.unpaid_invoices', compact('invoices'));
     }  
     public function partial()
     {
-        $invoices = invoices::where('Value_Status', 3)->get();
+        $invoices = invoices::query()->where('Value_Status', 3)->latest('id')->paginate(100);
         return view('invoices.partial_invoices', compact('invoices'));
     }
     
     public function trash() {
-        $invoices = invoices::onlyTrashed()->get();
+        $invoices = invoices::onlyTrashed()->latest('id')->paginate(100);
         return view('invoices.trashed_invoices', compact('invoices'));
     }
     

@@ -41,7 +41,7 @@ class InvoiceAlert extends Notification
     {
         return [
              'id'=> $this->latest_invoice->id,
-            'title'=>'تم اضافة فاتورة جديد بواسطة :',
+            'title'=>'Nouvelle facture ajoutee par :',
             'user'=> Auth::user()->name,
         ];
     }

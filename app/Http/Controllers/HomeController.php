@@ -2,106 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-
-use App\Models\invoices;
+use App\Models\SalesQuote;
+use App\Services\Dashboard\DashboardService;
+use App\Support\Branding;
 
 class HomeController extends Controller
 {
-        
-        /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
     public function __construct()
     {
         $this->middleware('auth');
     }
 
-    public function home(){
-        return "Home LP";
-    }
-    public function index($lang = 'en')
+    /**
+     * ERP home page (dashboard). Built from the ERP data only; the old invoicing module is read-only
+     * and no longer feeds the home page (its figures were all at 0 and made the page misleading).
+     */
+    public function index(DashboardService $dashboard)
     {
-        if(isset($lang) && $lang == 'ar'){
-            \App::setLocale($lang);
-        }
-        if($lang == '' || $lang == 'dashboard'){
-        }
-        else{
-            if ($lang != 'en' && $lang != 'ar') {
-                return view('404');
-            }
-        }
-        $count_all =invoices::count();
-        $count_invoices1 = invoices::where('Value_Status', 1)->count();
-        $count_invoices2 = invoices::where('Value_Status', 2)->count();
-        $count_invoices3 = invoices::where('Value_Status', 3)->count();
-
-        if($count_invoices2 == 0){
-            $nspainvoices2=0;
-        }
-        else{
-            $nspainvoices2 = $count_invoices2/ $count_all*100;
+        // Simple mode: three big buttons and the latest quotes, nothing else.
+        if (Branding::simpleMode()) {
+            return view('simple_home', [
+                'quotes' => SalesQuote::with(['client', 'invoice', 'order'])->latest()->limit(10)->get(),
+            ]);
         }
 
-        if($count_invoices1 == 0){
-            $nspainvoices1=0;
-        }
-        else{
-            $nspainvoices1 = $count_invoices1/ $count_all*100;
-        }
+        $finance = (bool) auth()->user()?->can('manage-finance');
 
-        if($count_invoices3 == 0){
-            $nspainvoices3=0;
-        }
-        else{
-            $nspainvoices3 = $count_invoices3/ $count_all*100;
-        }
-
-
-        $chartjs = app()->chartjs
-            ->name('barChartTest')
-            ->type('bar')
-            ->size(['width' => 350, 'height' => 200])
-            ->labels(['الفواتير الغير المدفوعة', 'الفواتير المدفوعة','الفواتير المدفوعة جزئيا'])
-            ->datasets([
-                [
-                    "label" => "الفواتير الغير المدفوعة",
-                    'backgroundColor' => ['#DFF6FF'],
-                    'data' => [$nspainvoices2]
-                ],
-                [
-                    "label" => "الفواتير المدفوعة",
-                    'backgroundColor' => ['#47B5FF'],
-                    'data' => [$nspainvoices1]
-                ],
-                [
-                    "label" => "الفواتير المدفوعة جزئيا",
-                    'backgroundColor' => ['#1363DF'],
-                    'data' => [$nspainvoices3]
-                ],
-
-
-            ])
-            ->options([]);
-
-
-        $chartjs_2 = app()->chartjs
-            ->name('pieChartTest')
-            ->type('pie')
-            ->size(['width' => 340, 'height' => 200])
-            ->labels(['الفواتير الغير المدفوعة', 'الفواتير المدفوعة','الفواتير المدفوعة جزئيا'])
-            ->datasets([
-                [
-                    'backgroundColor' => ['rgb(55, 226, 213)', '#590696','#FBCB0A'],
-                    'data' => [$nspainvoices2, $nspainvoices1,$nspainvoices3]
-                ]
-            ])
-            ->options([]);
-
-        return view('dashboard', compact('chartjs','chartjs_2'));
-
+        return view('dashboard', [
+            'finance' => $finance,
+            'month' => $finance ? $dashboard->month() : null,
+            'trend' => $finance ? $dashboard->trend() : null,
+            'todo' => $dashboard->todo($finance),
+            'recent' => $dashboard->recentDocuments(),
+            'lowStock' => $dashboard->lowStock(),
+            'counts' => $dashboard->counts(),
+        ]);
     }
 }

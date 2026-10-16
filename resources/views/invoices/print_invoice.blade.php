@@ -10,15 +10,15 @@
     </style>
 @endsection
 @section('title')
-    معاينه طباعة الفاتورة
+    Apercu impression facture
 @stop
 @section('page-header')
     <!-- breadcrumb -->
     <div class="breadcrumb-header justify-content-between">
         <div class="my-auto">
             <div class="d-flex">
-                <h4 class="content-title mb-0 my-auto">الفواتير</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/
-                    معاينة طباعة الفاتورة</span>
+                <h4 class="content-title mb-0 my-auto">Factures</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/
+                    Apercu impression facture</span>
             </div>
         </div>
 
@@ -34,18 +34,17 @@
                     <div class="card-body">
                         <div class="invoice-header">
                             <h1 class="invoice-title">
-                                <img width="100px" height="100px" src="{{ asset('assets/img/logoinvoice.PNG') }}" alt="logo image" title="logo image">
+                                <x-brand-logo style="max-width:160px;max-height:100px" />
                             </h1>
                             <div class="billed-from">
-                                <h6>Invoice soft, Inc.</h6>
-                                <p>Contact us: <br>
-                                    Tel No: 30 445-4544<br>
-                                    Email: youremail@companyname.com</p>
+                                <h6>{{ \App\Support\Branding::companyName() }}</h6>
+                                <p>{{ \App\Support\Branding::contactLine() }}<br>
+                                    {{ \App\Support\Branding::legalLine() }}</p>
                             </div><!-- billed-from -->
                         </div><!-- invoice-header -->
                         <div class="row mg-t-20">
                             <div class="col-md">
-                                <label class="tx-gray-600">Billed To</label>
+                                <label class="tx-gray-600">Facture a</label>
                                 <div class="billed-to">
                                     <h6>Juan Dela Cruz</h6>
                                     <p>4033 Patterson Road, Staten Island, NY 10301<br>
@@ -54,15 +53,15 @@
                                 </div>
                             </div>
                             <div class="col-md">
-                                <label class="tx-gray-600">معلومات الفاتورة</label>
-                                <p class="invoice-info-row"><span>رقم الفاتورة</span>
+                                <label class="tx-gray-600">Informations facture</label>
+                                <p class="invoice-info-row"><span>Numero de facture</span>
                                     <span>{{ $invoices->invoice_number }}</span></p>
-                                <p class="invoice-info-row"><span>تاريخ الاصدار</span>
+                                <p class="invoice-info-row"><span>Date d emission</span>
                                     <span>{{ $invoices->invoice_date }}</span></p>
-                                <p class="invoice-info-row"><span>تاريخ الاستحقاق</span>
+                                <p class="invoice-info-row"><span>Date d echeance</span>
                                     <span>{{ $invoices->due_date }}</span></p>
-                                <p class="invoice-info-row"><span>القسم</span>
-                                    <span>{{ $invoices->section->section_name }}</span></p>
+                                <p class="invoice-info-row"><span>Section</span>
+                                    <span>-</span></p>
                             </div>
                         </div>
                         <div class="table-responsive mg-t-40">
@@ -70,10 +69,10 @@
                                 <thead>
                                     <tr>
                                         <th class="wd-20p">#</th>
-                                        <th class="wd-40p">المنتج</th>
-                                        <th class="tx-center">مبلغ التحصيل</th>
-                                        <th class="tx-right">مبلغ العمولة</th>
-                                        <th class="tx-right">الاجمالي</th>
+                                        <th class="wd-40p">Produit</th>
+                                        <th class="tx-center">Montant collecte</th>
+                                        <th class="tx-right">Montant de commission</th>
+                                        <th class="tx-right">Total</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -97,20 +96,20 @@
 
                                             </div><!-- invoice-notes -->
                                         </td>
-                                        <td class="tx-right">الاجمالي</td>
+                                        <td class="tx-right">Total</td>
                                         <td class="tx-right" colspan="2"> {{ number_format($total, 2) }}</td>
                                     </tr>
                                     <tr>
-                                        <td class="tx-right">نسبة الضريبة ({{ $invoices->Rate_VAT }})</td>
+                                        <td class="tx-right">Taux de TVA ({{ $invoices->Rate_VAT }})</td>
                                         <td class="tx-right" colspan="2">287.50</td>
                                     </tr>
                                     <tr>
-                                        <td class="tx-right">قيمة الخصم</td>
+                                        <td class="tx-right">Valeur de la remise</td>
                                         <td class="tx-right" colspan="2"> {{ number_format($invoices->Discount, 2) }}</td>
 
                                     </tr>
                                     <tr>
-                                        <td class="tx-right tx-uppercase tx-bold tx-inverse">الاجمالي شامل الضريبة</td>
+                                        <td class="tx-right tx-uppercase tx-bold tx-inverse">Total TTC</td>
                                         <td class="tx-right" colspan="2">
                                             <h4 class="tx-primary tx-bold">{{ number_format($invoices->Total, 2) }}</h4>
                                         </td>
@@ -123,7 +122,7 @@
 
 
                         <button class="btn btn-danger  float-left mt-3 mr-2" id="print_Button" onclick="printInvoice()"> <i
-                                class="mdi mdi-printer ml-1"></i>طباعة</button>
+                                class="mdi mdi-printer ml-1"></i>Imprimer</button>
                     </div>
                 </div>
             </div>
@@ -153,3 +152,8 @@
     </script>
 
 @endsection
+
+
+
+
+

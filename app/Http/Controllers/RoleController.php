@@ -1,131 +1,77 @@
 <?php
-namespace App\Http\Controllers;
-use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use DB;
 
- 
+namespace App\Http\Controllers;
+
+use App\Models\User;
+
+/**
+ * Administration > Roles (Admin only): what each role can do, and who has it.
+ *
+ * Access rights depend on the role only (Admin, Technicien: gate manage-finance and the admin middleware);
+ * the Spatie permission table is empty. Creating, renaming or deleting roles had no effect (a new role could
+ * not be given to anyone) or could lock the application (deleting "Admin"), so roles are fixed.
+ */
 class RoleController extends Controller
 {
-/**
-* Display a listing of the resource.
-*
-* @return \Illuminate\Http\Response
-*/
-function __construct()
-{
-    
-   // $this->middleware('permission:تعديل الفاتورة', ['only' => ['edit']]);
-   /// $this->middleware('permission:الفواتير الغير مدفوعة', ['only' => ['unpaid_invoice']]);
-   /// $this->middleware('permission:role-create', ['only' => ['create','store']]);
-   // $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
-   // $this->middleware('permission:role-delete', ['only' => ['destroy']]);
-    
-   // $this->middleware(['role:super-admin','permission:invoices']);
+    /** Rights matrix: [area, what it covers, Admin, Technicien] */
+    public const MATRIX = [
+        ['Ventes', 'Devis, commandes, livraisons, factures (brouillons)', true, true],
+        ['Achats', 'Demandes d\'achat, commandes, receptions, factures fournisseur (brouillons)', true, true],
+        ['Stock et catalogue', 'Produits, services, categories, mouvements de stock', true, true],
+        ['Contacts', 'Clients et fournisseurs', true, true],
+        ['Documents', 'PDF, Excel, import de lignes depuis Excel', true, true],
+        ['Validation des factures', 'Numero definitif, avoirs, annulations', true, false],
+        ['Paiements', 'Encaissements, decaissements, remboursements', true, false],
+        ['Releves et comptabilite', 'Releves clients / fournisseurs, journaux, TVA, tresorerie, ecritures', true, false],
+        ['Administration', 'Utilisateurs, journal d\'activite, signature, import Excel en masse', true, false],
+    ];
 
-    
-   // $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
-    //$this->middleware('permission:role-delete', ['only' => ['destroy']]);
-}
-/**
-* Display a listing of the resource.
-*
-* @return \Illuminate\Http\Response
-*/
-public function index(Request $request)
-{
-    $roles = Role::orderBy('id','DESC')->paginate(5);
-    return view('roles.index',compact('roles'))
-    ->with('i', ($request->input('page', 1) - 1) * 5);
-}
-/**
-* Show the form for creating a new resource.
-*
-* @return \Illuminate\Http\Response
-*/
-public function create()
-{
-    $permission = Permission::get();
-    return view('roles.create',compact('permission'));
-}
-/**
-* Store a newly created resource in storage.
-*
-* @param  \Illuminate\Http\Request  $request
-* @return \Illuminate\Http\Response
-*/
-public function store(Request $request)
-{
-    $this->validate($request, [
-    'name' => 'required|unique:roles,name',
-    'permission' => 'required',
-    ]);
-    $role = Role::create(['name' => $request->input('name')]);
-    $role->syncPermissions($request->input('permission'));
-    return redirect()->route('roles.index')
-    ->with('success','Role created successfully');
-}
-/**
-* Display the specified resource.
-*
-* @param  int  $id
-* @return \Illuminate\Http\Response
-*/
-public function show($id)
-{
-    $role = Role::find($id);
-    $rolePermissions = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
-    ->where("role_has_permissions.role_id",$id)
-    ->get();
-    return view('roles.show',compact('role','rolePermissions'));
-}
-/**
-* Show the form for editing the specified resource.
-*
-* @param  int  $id
-* @return \Illuminate\Http\Response
-*/
-public function edit($id)
-{
-    $role = Role::find($id);
-    $permission = Permission::get();
-    $rolePermissions = DB::table("role_has_permissions")->where("role_has_permissions.role_id",$id)
-    ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
-    ->all();
-    return view('roles.edit',compact('role','permission','rolePermissions'));
-}
-/**
-* Update the specified resource in storage.
-*
-* @param  \Illuminate\Http\Request  $request
-* @param  int  $id
-* @return \Illuminate\Http\Response
-*/
-public function update(Request $request, $id)
-{
-$this->validate($request, [
-'name' => 'required',
-'permission' => 'required',
-]);
-$role = Role::find($id);
-$role->name = $request->input('name');
-$role->save();
-$role->syncPermissions($request->input('permission'));
-return redirect()->route('roles.index')
-->with('success','Role updated successfully');
-}
-/**
-* Remove the specified resource from storage.
-*
-* @param  int  $id
-* @return \Illuminate\Http\Response
-*/
-public function destroy($id)
-{
-DB::table("roles")->where('id',$id)->delete();
-return redirect()->route('roles.index')
-->with('success','Role deleted successfully');
-}
+    public function index()
+    {
+        $users = User::with('roles:id,name')->orderBy('name')->get(['id', 'name', 'email', 'status']);
+
+        return view('roles.index', [
+            'matrix' => self::MATRIX,
+            'roles' => [
+                'Admin' => ['label' => 'Administrateur', 'description' => UserController::ROLES['Admin'], 'icon' => 'fe-shield', 'users' => $users->filter(fn ($u) => $u->hasRole('Admin'))->values()],
+                'Technicien' => ['label' => 'Technicien', 'description' => UserController::ROLES['Technicien'], 'icon' => 'fe-briefcase', 'users' => $users->filter(fn ($u) => $u->hasRole('Technicien'))->values()],
+            ],
+        ]);
+    }
+
+    public function show($id)
+    {
+        return redirect()->route('roles.index');
+    }
+
+    public function create()
+    {
+        return $this->fixed();
+    }
+
+    public function store()
+    {
+        return $this->fixed();
+    }
+
+    public function edit($id)
+    {
+        return $this->fixed();
+    }
+
+    public function update($id)
+    {
+        return $this->fixed();
+    }
+
+    public function destroy($id)
+    {
+        return $this->fixed();
+    }
+
+    private function fixed()
+    {
+        return redirect()->route('roles.index')
+            ->with('warning', 'Les roles sont fixes (Administrateur et Technicien) : pour changer les droits d\'une personne, modifiez son role dans Utilisateurs.');
+    }
 }

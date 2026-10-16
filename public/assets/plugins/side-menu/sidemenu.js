@@ -50,6 +50,11 @@
 	
 	// ______________Active Class
 	$(".app-sidebar a").each(function() {
+	  // ERP sidebar: active item and open group are rendered by the server (layouts/main-sidebar).
+	  // This template logic also "clicked" the element before the logo link, toggling the sidebar on the dashboard.
+	  if ($(this).closest('.erp-sidebar').length) {
+		return;
+	  }
 	  var pageUrl = window.location.href.split(/[?#]/)[0];
 		if (this.href == pageUrl) { 
 			$(this).addClass("active");

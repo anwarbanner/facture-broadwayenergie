@@ -49,4 +49,17 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'role_name' => 'array',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (User $user): void {
+            if (empty($user->role_name)) {
+                $user->role_name = ['Technicien'];
+            }
+
+            if (empty($user->status)) {
+                $user->status = 'active';
+            }
+        });
+    }
 }

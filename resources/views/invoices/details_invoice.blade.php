@@ -12,7 +12,7 @@
 <div class="breadcrumb-header justify-content-between">
         <div class="my-auto">
                 <div class="d-flex">
-                        <h4 class="content-title mb-0 my-auto">الفواتير</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/ تفاصيل الفاتوره</span>
+                        <h4 class="content-title mb-0 my-auto">Factures</h4><span class="text-muted mt-1 tx-13 mr-2 mb-0">/ Details de la facture</span>
                 </div>
         </div>
         <div class="d-flex my-xl-auto right-content">
@@ -37,7 +37,7 @@
             <div class="card-body">
                 <div class="main-content-label mg-b-5">
                     <p>
-                        التفاصيل الخاصه بالفاتوره
+                        Details de la facture
                     </p>
                 </div>
                    @if ($errors->any())
@@ -77,9 +77,9 @@
                                 <div class="tabs-menu1">
                                         <!-- Tabs -->
                                         <ul class="nav panel-tabs main-nav-line">
-                                                <li><a href="#tab4" class="nav-link active" data-toggle="tab">تفاصيل الفاتوره </a></li>
-                                                <li><a href="#tab5" class="nav-link" data-toggle="tab">حالات الدفع</a></li>
-                                                <li><a href="#tab6" class="nav-link" data-toggle="tab">المرفقات</a></li>
+                                                <li><a href="#tab4" class="nav-link active" data-toggle="tab">Details de la facture </a></li>
+                                                <li><a href="#tab5" class="nav-link" data-toggle="tab">Etats de paiement</a></li>
+                                                <li><a href="#tab6" class="nav-link" data-toggle="tab">Pieces jointes</a></li>
                                         </ul>
                                 </div>
                         </div>
@@ -93,53 +93,53 @@
                                                     <table class="table table-bordered" style="text-align:center">
                                                         <thead>
                                                             <tr class="table-primary">
-                                                                <th  scope="col">رقم الفاتوره</th>
+                                                                <th  scope="col">Numero de facture</th>
                                                                 <td style="background-color: background;" scope="row">{{ $invoice->invoice_number }}</td>
-                                                                <th scope="col">تاريخ الاصدار</th>
+                                                                <th scope="col">Date d emission</th>
                                                                 <td style="background-color: background;"  scope="row">{{ $invoice->invoice_date }}</td>
-                                                                <th scope="col">تاريخ الاستحقاق</th>
+                                                                <th scope="col">Date d echeance</th>
                                                                 <td style="background-color: background;"  scope="row">{{ $invoice->due_date }}</td>
-                                                                <th scope="col">القسم</th>
-                                                                <td  style="background-color: background;" scope="row">{{ $invoice->section->section_name }}</td>
+                                                                <th scope="col">Section</th>
+                                                                <td  style="background-color: background;" scope="row">-</td>
                                                             </tr>
                                                             <tr class="table-primary">
-                                                                <th scope="row">المنتج</th>
+                                                                <th scope="row">Produit</th>
                                                                 <td style="background-color: background;" >{{ $invoice->product }}</td>
-                                                                <th scope="row">مبلغ التحصيل</th>
+                                                                <th scope="row">Montant collecte</th>
                                                                 <td style="background-color: background;" >{{ $invoice->Amount_collection }}</td>
-                                                                <th scope="row">مبلغ العمولة</th>
+                                                                <th scope="row">Montant de commission</th>
                                                                 <td style="background-color: background;" >{{ $invoice->Amount_Commission }}</td>
-                                                                <th scope="row">الخصم</th>
+                                                                <th scope="row">Remise</th>
                                                                 <td style="background-color: background;" >{{ $invoice->Discount }}</td>
                                                             </tr>
 
 
                                                         <tr class="table-primary">
-                                                            <th scope="row">نسبة الضريبة</th>
+                                                            <th scope="row">Taux de TVA</th>
                                                             <td style="background-color: background;" >{{ $invoice->Rate_VAT }}</td>
-                                                            <th scope="row">قيمة الضريبة</th>
+                                                            <th scope="row">Valeur de TVA</th>
                                                             <td style="background-color: background;" >{{ $invoice->Value_VAT }}</td>
-                                                            <th scope="row">الاجمالي مع الضريبة</th>
+                                                            <th scope="row">Total avec TVA</th>
                                                             <td style="background-color: background;" >{{ $invoice->Total }}</td>
-                                                            <th scope="row">الحالة الحالية</th>
+                                                            <th scope="row">Etat actuel</th>
 
                                                             @if ($invoice->Value_Status == 1)
                                                                 <td style="background-color: background;" ><span
-                                                                        class="badge badge-pill badge-success">{{ $invoice->status }}</span>
+                                                                        class="badge badge-pill badge-success">{{ \App\Support\Format::legacyStatus($invoice->Value_Status) }}</span>
                                                                 </td>
                                                             @elseif($invoice->Value_Status ==2)
                                                                 <td style="background-color: background;" ><span
-                                                                        class="badge badge-pill badge-danger">{{ $invoice->status }}</span>
+                                                                        class="badge badge-pill badge-danger">{{ \App\Support\Format::legacyStatus($invoice->Value_Status) }}</span>
                                                                 </td>
                                                             @else
                                                                 <td style="background-color: background;" ><span
-                                                                        class="badge badge-pill badge-warning">{{ $invoice->status }}</span>
+                                                                        class="badge badge-pill badge-warning">{{ \App\Support\Format::legacyStatus($invoice->Value_Status) }}</span>
                                                                 </td>
                                                             @endif
                                                         </tr>
 
                                                         <tr>
-                                                            <th scope="row">ملاحظات</th>
+                                                            <th scope="row">Notes</th>
                                                             <td style="background-color: background;" >{{ $invoice->note }}</td>
                                                         </tr>
                                                         </thead>
@@ -156,14 +156,14 @@
                                         <thead>
                                             <tr class="text-dark">
                                                 <th>#</th>
-                                                <th>رقم الفاتورة</th>
-                                                <th>نوع المنتج</th>
-                                                <th>القسم</th>
-                                                <th>حالة الدفع</th>
-                                                <th>تاريخ الدفع </th>
-                                                <th>ملاحظات</th>
-                                                <th>تاريخ الاضافة </th>
-                                                <th>المستخدم</th>
+                                                <th>Numero de facture</th>
+                                                <th>Type de produit</th>
+                                                <th>Section</th>
+                                                <th>Etat du paiement</th>
+                                                <th>Date de paiement </th>
+                                                <th>Notes</th>
+                                                <th>Date d ajout </th>
+                                                <th>utilisateur</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -174,18 +174,18 @@
                                                 <td>{{ $i }}</td>
                                                 <td>{{ $x->invoice_number }}</td>
                                                 <td>{{ $x->product }}</td>
-                                                <td>{{ $invoice->section->section_name }}</td>
+                                                <td>-</td>
                                                 @if ($x->Value_Status == 1)
                                                     <td><span
-                                                            class="badge badge-pill badge-success">{{ $x->Status }}</span>
+                                                            class="badge badge-pill badge-success">{{ \App\Support\Format::legacyStatus($x->Value_Status) }}</span>
                                                     </td>
                                                 @elseif($x->Value_Status ==2)
                                                     <td><span
-                                                            class="badge badge-pill badge-danger">{{ $x->Status }}</span>
+                                                            class="badge badge-pill badge-danger">{{ \App\Support\Format::legacyStatus($x->Value_Status) }}</span>
                                                     </td>
                                                 @else
                                                     <td><span
-                                                            class="badge badge-pill badge-warning">{{ $x->Status }}</span>
+                                                            class="badge badge-pill badge-warning">{{ \App\Support\Format::legacyStatus($x->Value_Status) }}</span>
                                                     </td>
                                                 @endif
                                                 <td>{{ $x->Payment_Date }}</td>
@@ -201,11 +201,11 @@
                                 </div>
                                 </div>
                                 <div class="tab-pane" id="tab6">
-                                            <!--المرفقات-->
+                                            <!--Pieces jointes-->
                                     <div class="card card-statistics">
                                             <div class="card-body">
-                                                <p class="text-danger">* صيغة المرفق pdf, jpeg ,.jpg , png </p>
-                                                <h5 class="card-title">اضافة مرفقات</h5>
+                                                <p class="text-danger">* Format de piece jointe: pdf, jpeg, jpg, png </p>
+                                                <h5 class="card-title">Ajouter des pieces jointes</h5>
                                                 <form method="post" action="{{ url('/InvoiceAttachments') }}"
                                                     enctype="multipart/form-data">
                                                     {{ csrf_field() }}
@@ -216,11 +216,10 @@
                                                             value="{{ $invoice->invoice_number }}">
                                                         <input type="hidden" id="invoice_id" name="invoice_id"
                                                             value="{{ $invoice->id }}">
-                                                        <label class="custom-file-label" for="customFile">حدد
-                                                            المرفق</label>
+                                                        <label class="custom-file-label" for="customFile">Choisir la piece jointe</label>
                                                     </div><br><br>
                                                     <button type="submit" class="btn btn-primary btn-sm "
-                                                        name="uploadedFile">تاكيد</button>
+                                                        name="uploadedFile">Confirmer</button>
                                                 </form>
                                             </div>
                                         <br>
@@ -230,11 +229,11 @@
                                                 style="text-align:center">
                                                 <thead>
                                                     <tr class="text-dark">
-                                                        <th scope="col">م</th>
-                                                        <th scope="col">اسم الملف</th>
-                                                        <th scope="col">قام بالاضافة</th>
-                                                        <th scope="col">تاريخ الاضافة</th>
-                                                        <th scope="col">العمليات</th>
+                                                        <th scope="col">?</th>
+                                                        <th scope="col">Nom du fichier</th>
+                                                        <th scope="col">Ajoute par</th>
+                                                        <th scope="col">Date d ajout</th>
+                                                        <th scope="col">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody>
@@ -251,20 +250,20 @@
                                                                         <a class="btn btn-outline-success btn-sm"
                                                                             href="{{ url('View_file') }}/{{ $invoice->invoice_number }}/{{ $attachment->file_name }}"
                                                                             role="button"><i class="fas fa-eye"></i>&nbsp;
-                                                                            عرض</a>
+                                                                            Afficher</a>
 
                                                                         <a class="btn btn-outline-info btn-sm"
                                                                             href="{{ url('download') }}/{{ $invoice->invoice_number }}/{{ $attachment->file_name }}"
                                                                             role="button"><i
                                                                                 class="fas fa-download"></i>&nbsp;
-                                                                            تحميل</a>
+                                                                            Telecharger</a>
   
                                                                             <button class="btn btn-outline-danger btn-sm"
                                                                                 data-toggle="modal"
                                                                                 data-file_name="{{ $attachment->file_name }}"
                                                                                 data-invoice_number="{{ $attachment->invoice_number }}"
                                                                                 data-id_file="{{ $attachment->id }}"
-                                                                                data-target="#delete_file">حذف
+                                                                                data-target="#delete_file">Supprimer
                                                                             </button>
                                                                      </td>
                                                                 </tr>
@@ -303,7 +302,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">حذف المرفق</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Supprimer la piece jointe</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -313,7 +312,7 @@
                     {{ csrf_field() }}
                     <div class="modal-body">
                         <p class="text-center">
-                        <h6 style="color:red"> هل انت متاكد من عملية حذف المرفق ؟</h6>
+                        <h6 style="color:red"> Etes-vous sur de vouloir supprimer la piece jointe ?</h6>
                         </p>
 
                         <input type="hidden" name="id_file" id="id_file" value="">
@@ -322,8 +321,8 @@
 
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">الغاء</button>
-                        <button type="submit" class="btn btn-danger">تاكيد</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Annuler</button>
+                        <button type="submit" class="btn btn-danger">Confirmer</button>
                     </div>
                 </form>
             </div>
@@ -362,3 +361,8 @@
         })
     </script>
 @endsection
+
+
+
+
+
