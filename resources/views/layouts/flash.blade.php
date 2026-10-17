@@ -3,7 +3,8 @@
     (conversion, validation...) and the summary of validation errors. Before, most document pages
     (show / edit) did not display them, so a refused conversion looked like "nothing happened".
 --}}
-@if(request()->routeIs('erp.*', 'settings.*', 'activity-logs.*', 'users.*', 'roles.*'))
+{{-- "warning" also on the other pages: an expired form sends the user back to any page (App\Exceptions\Handler). --}}
+@if(request()->routeIs('erp.*', 'settings.*', 'activity-logs.*', 'users.*', 'roles.*') || session()->has('warning'))
     <div class="erp-flash erp-pro-page" aria-live="polite">
         @if(session('highlight'))
             {{-- Row just created: highlighted in the list by public/assets/js/erp-ui.js --}}

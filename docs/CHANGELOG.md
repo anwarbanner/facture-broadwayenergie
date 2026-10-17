@@ -5,6 +5,20 @@ Le suivi global des problèmes et du plan d'action se trouve dans [AUDIT_ERP.md]
 
 ---
 
+## 2026-10-17 — Pages expirées : retour à la connexion ou au formulaire, erreurs en français
+
+- **Fini la page « 419 Page Expired »** : si la session est terminée, l'utilisateur arrive sur la connexion avec
+  un message, puis revient sur la page où il était ; s'il est encore connecté (formulaire resté ouvert trop
+  longtemps), il revient sur le formulaire **déjà rempli** avec le message « rien n'a été enregistré, validez à
+  nouveau ». Une déconnexion expirée mène simplement à la connexion ; la page de connexion expirée garde l'e-mail.
+- Ouvrir une page après la fin de la session : message d'explication sur la connexion (pas pour l'adresse `/`).
+- **Pages d'erreur en français** (`resources/views/errors/` : 403, 404, 419, 429, 500, 503, 4xx, 5xx) avec les
+  boutons « Page précédente » et « Retour à l'accueil », au lieu des pages anglaises de Laravel.
+- Messages « warning » affichés aussi hors pages ERP (`layouts/flash`) et sur la page de connexion.
+- Tests : `SessionExpiredTest` (6) ; **183 tests verts**.
+
+---
+
 ## 2026-10-16 — Mise en ligne : dépôt GitHub pour cPanel
 
 - Projet poussé sur `github.com/anwarbanner/facture-broadwayenergie` (branche `main`, remote `origin` ;

@@ -303,3 +303,11 @@ Valable pour les factures **client et fournisseur**.
   dès qu'il est facturé. À noter : un devis dont la facture est annulée par avoir reste verrouillé (pas de refacturation).
 - Factures saisies à la main en mode simple : validées à l'enregistrement (finance). Devis fournisseur → facture
   fournisseur en un clic (une par devis, sans stock). Les devis fournisseurs restent les tables purchase_quotes.
+
+## 12. Pages expirées et erreurs (depuis le 2026-10-17)
+- 419 « Page Expired » jamais affiché (`App\Exceptions\Handler`) : session perdue → connexion avec message, puis
+  retour sur la page d'origine (`url.intended`) ; encore connecté → retour au formulaire, saisies conservées
+  (sauf mots de passe), message « rien n'a été enregistré ». Déconnexion expirée → connexion. AJAX → JSON 419.
+- Accès sans session (`unauthenticated`) : message sur la page de connexion, sauf pour l'adresse `/`.
+- Pages d'erreur en français dans `resources/views/errors/` (403, 404, 419, 429, 500, 503, 4xx, 5xx), avec
+  « Page précédente » et « Retour à l'accueil ». Visibles seulement avec `APP_DEBUG=false` pour les 500.

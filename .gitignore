@@ -20,3 +20,4 @@ yarn-error.log
 /graphify-out
 /.phpunit.cache
 phpunit.xml.bak
+/vendor.zip

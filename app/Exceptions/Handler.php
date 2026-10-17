@@ -3,6 +3,7 @@
 namespace App\Exceptions;
 
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
@@ -42,6 +43,43 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
             //
+        });
+
+        // 419 "Page Expired" (form left open too long, or session ended): never show the bare error page.
+        // Session lost -> login, then back to the page; still logged in -> back to the form, inputs kept.
+        $this->renderable(function (HttpExceptionInterface $e, Request $request) {
+            if ($e->getStatusCode() !== 419) {
+                return null;
+            }
+
+            if ($request->expectsJson()) {
+                return response()->json([
+                    'message' => 'La page a expire. Rechargez la page puis reessayez.',
+                ], 419);
+            }
+
+            if ($request->routeIs('logout')) {
+                return redirect()->route('login');
+            }
+
+            if (! $request->user()) {
+                $previous = url()->previous();
+                if ($this->isOwnPage($previous) && ! str_starts_with($previous, route('login'))) {
+                    redirect()->setIntendedUrl($previous);
+                }
+
+                $message = $request->routeIs('login')
+                    ? 'La page de connexion avait expire. Saisissez a nouveau votre mot de passe.'
+                    : 'Votre session a expire. Reconnectez-vous : vous reviendrez ensuite sur la page.';
+
+                return redirect()->route('login')
+                    ->withInput($request->only('email', 'remember'))
+                    ->with('warning', $message);
+            }
+
+            return redirect()->back()
+                ->withInput($request->except([...$this->dontFlash, '_token']))
+                ->with('warning', 'La page avait expire : rien n\'a ete enregistre. Verifiez les informations puis validez a nouveau.');
         });
 
         $this->renderable(function (ModelNotFoundException $e, Request $request) {
@@ -100,6 +138,32 @@ class Handler extends ExceptionHandler
                     ->with('error', 'Operation echouee. Verifiez les donnees saisies et reessayez.');
             }
         });
+    }
+
+    /**
+     * Not logged in (session ended or never opened): login page with a message, then back to the page asked.
+     */
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        if ($this->shouldReturnJson($request, $exception)) {
+            return response()->json(['message' => 'Session expiree. Reconnectez-vous.'], 401);
+        }
+
+        $redirect = redirect()->guest($exception->redirectTo() ?? route('login'));
+
+        // Opening the site address itself is not an "expired session".
+        if ($request->path() !== '/') {
+            $redirect->with('warning', 'Votre session a expire ou vous n\'etes pas connecte. Connectez-vous pour continuer.');
+        }
+
+        return $redirect;
+    }
+
+    private function isOwnPage(?string $url): bool
+    {
+        $base = rtrim(url('/'), '/');
+
+        return is_string($url) && ($url === $base || str_starts_with($url, $base . '/'));
     }
 
     private function isWriteRequest(Request $request): bool

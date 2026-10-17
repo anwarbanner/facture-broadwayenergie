@@ -24,6 +24,10 @@ ERP - Connexion
                 @if (Session::has('unactive'))
                     <div class="alert alert-danger">{{ Session::get('unactive') }}</div>
                 @endif
+                @if (Session::has('warning'))
+                    {{-- Session ended / page expired (App\Exceptions\Handler) --}}
+                    <div class="alert alert-warning" role="alert">{{ Session::get('warning') }}</div>
+                @endif
 
                 <h2 class="auth-title">Connexion</h2>
                 <p class="auth-subtitle">Accedez a votre espace ERP en toute securite.</p>
